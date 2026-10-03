@@ -1,32 +1,74 @@
 import { useStore } from 'zustand'
 import { createStore } from 'zustand/vanilla'
-import { mapLayout } from '../map/mapLayout'
+import { mapLayout, type TowerLayout } from '../map/mapLayout'
 import { resumeData } from '../resume/resumeData'
 import type { GroundPosition } from './movement'
+
+// How close (in world units) the Hero must stand to a Tower's centre to be
+// in its range. Well under half the closest Tower spacing, so ranges never
+// overlap.
+export const TOWER_RANGE = 2.5
 
 export type RunState = {
   heroPosition: GroundPosition
   moveTarget: GroundPosition | null
+  // Resume Entry ids of the Captured Towers.
+  captures: ReadonlySet<string>
+  // Resume Entry id whose Info Panel is open, or null.
+  openInfoPanel: string | null
   heroMovedTo: (position: GroundPosition) => void
   setMoveTarget: (position: GroundPosition) => void
+  closeInfoPanel: () => void
 }
 
 // Builds the state for one Run. A factory (rather than only a module-level
 // store) lets each test start from a fresh Run.
 export function createRunStore() {
-  return createStore<RunState>()((set) => ({
-    // A copy, so the Run never shares an object with the map layout.
-    heroPosition: { ...mapLayout(resumeData).base },
-    moveTarget: null,
+  const layout = mapLayout(resumeData)
+  const towers = layout.lanes.flatMap((lane) => lane.towers)
 
-    heroMovedTo: (position) =>
-      set((state) => ({
+  return createStore<RunState>()((set, get) => ({
+    // A copy, so the Run never shares an object with the map layout.
+    heroPosition: { ...layout.base },
+    moveTarget: null,
+    captures: new Set(),
+    openInfoPanel: null,
+
+    heroMovedTo: (position) => {
+      const state = get()
+      const update: Partial<RunState> = {
         heroPosition: position,
         moveTarget: state.moveTarget && isSamePosition(state.moveTarget, position) ? null : state.moveTarget,
-      })),
+      }
+
+      // Called every frame, so act only on the edges: the move that enters a
+      // range and the move that leaves it. Staying in range changes nothing,
+      // which is what lets Esc close the panel while the Hero stands there.
+      const wasIn = towerInRange(towers, state.heroPosition)?.entryId ?? null
+      const nowIn = towerInRange(towers, position)?.entryId ?? null
+      if (nowIn !== wasIn) {
+        if (wasIn !== null) update.openInfoPanel = null
+        if (nowIn !== null) {
+          // Only the first entry is a Capture; later ones just reopen.
+          if (!state.captures.has(nowIn)) update.captures = new Set(state.captures).add(nowIn)
+          update.openInfoPanel = nowIn
+        }
+      }
+
+      set(update)
+    },
+
+    closeInfoPanel: () => set({ openInfoPanel: null }),
 
     setMoveTarget: (position) => set({ moveTarget: position }),
   }))
+}
+
+// Proximity is a plain distance check against each Tower's centre: no
+// physics engine, no colliders. Ranges never overlap, so at most one Tower
+// is in range.
+function towerInRange(towers: TowerLayout[], position: GroundPosition) {
+  return towers.find((tower) => Math.hypot(tower.position.x - position.x, tower.position.z - position.z) <= TOWER_RANGE) ?? null
 }
 
 // Exact comparison is enough: stepToward lands exactly on the target.

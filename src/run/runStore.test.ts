@@ -44,4 +44,83 @@ describe('Run store', () => {
 
     expect(run.getState().moveTarget).toBeNull()
   })
+
+  describe('Capture and Info Panel', () => {
+    it('Captures a Tower and opens its Info Panel when the Hero enters its range', () => {
+      const run = createRunStore()
+      const tower = towerByEntry('tiny-charts')
+
+      run.getState().heroMovedTo(tower.position)
+
+      expect(run.getState().captures).toEqual(new Set(['tiny-charts']))
+      expect(run.getState().openInfoPanel).toBe('tiny-charts')
+    })
+
+    it('closes the Info Panel when the Hero walks out of range', () => {
+      const run = createRunStore()
+      const tower = towerByEntry('tiny-charts')
+      run.getState().heroMovedTo(tower.position)
+
+      run.getState().heroMovedTo({ x: tower.position.x + 5, z: tower.position.z })
+
+      expect(run.getState().openInfoPanel).toBeNull()
+      expect(run.getState().captures).toEqual(new Set(['tiny-charts']))
+    })
+
+    it('keeps the Info Panel closed after closing it while the Hero is still in range', () => {
+      const run = createRunStore()
+      const tower = towerByEntry('tiny-charts')
+      run.getState().heroMovedTo(tower.position)
+
+      run.getState().closeInfoPanel()
+      run.getState().heroMovedTo({ x: tower.position.x + 0.5, z: tower.position.z })
+
+      expect(run.getState().openInfoPanel).toBeNull()
+    })
+
+    it('reopens a Captured Tower\'s Info Panel on re-entry without Capturing it again', () => {
+      const run = createRunStore()
+      const tower = towerByEntry('tiny-charts')
+      run.getState().heroMovedTo(tower.position)
+      run.getState().heroMovedTo({ x: tower.position.x + 5, z: tower.position.z })
+      const capturesBefore = run.getState().captures
+
+      run.getState().heroMovedTo(tower.position)
+
+      expect(run.getState().openInfoPanel).toBe('tiny-charts')
+      // The same set, untouched: no second Capture happened.
+      expect(run.getState().captures).toBe(capturesBefore)
+    })
+
+    it('walking to each Tower\'s position Captures that Tower and only that one', () => {
+      const towers = mapLayout(resumeData).lanes.flatMap((lane) => lane.towers)
+      expect(towers).toHaveLength(7)
+
+      for (const tower of towers) {
+        const run = createRunStore()
+
+        run.getState().heroMovedTo(tower.position)
+
+        expect(run.getState().captures).toEqual(new Set([tower.entryId]))
+        expect(run.getState().openInfoPanel).toBe(tower.entryId)
+      }
+    })
+
+    it('Captures nothing at the Base', () => {
+      const run = createRunStore()
+
+      run.getState().heroMovedTo(mapLayout(resumeData).base)
+
+      expect(run.getState().captures.size).toBe(0)
+      expect(run.getState().openInfoPanel).toBeNull()
+    })
+  })
 })
+
+function towerByEntry(entryId: string) {
+  const tower = mapLayout(resumeData)
+    .lanes.flatMap((lane) => lane.towers)
+    .find((t) => t.entryId === entryId)
+  if (!tower) throw new Error(`No Tower for ${entryId}`)
+  return tower
+}
