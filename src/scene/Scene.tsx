@@ -1,8 +1,10 @@
 import { Canvas } from '@react-three/fiber'
+import { CameraRig } from './CameraRig'
 import { Ground } from './Ground'
 import { Hero } from './Hero'
 import { Lights } from './Lights'
-import { isometricCameraPosition } from './isometricCamera'
+import { MoveTargetMarker } from './MoveTargetMarker'
+import { CAMERA_OFFSET } from './isometricCamera'
 
 export function Scene() {
   return (
@@ -28,12 +30,14 @@ export function Scene() {
       // Cameras look down their own -Z axis. R3F calls camera.lookAt(0, 0, 0)
       // on its default camera (unless you pass a rotation), so the Hero at
       // the origin is framed in the centre.
-      camera={{ position: isometricCameraPosition(30), zoom: 40, near: 0.1, far: 100 }}
+      camera={{ position: CAMERA_OFFSET, zoom: 40, near: 0.1, far: 100 }}
     >
       <color attach="background" args={['#1d2330']} />
       <Lights />
       <Ground />
+      <MoveTargetMarker />
       <Hero />
+      <CameraRig />
     </Canvas>
   )
 }
