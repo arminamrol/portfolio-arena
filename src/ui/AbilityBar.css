@@ -1,0 +1,141 @@
+.ability-bar {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  font-family: system-ui, sans-serif;
+  color: #ece6d8;
+  /* Only the keys catch clicks; the space around and above them (the
+     tooltip slot) lets clicks fall through to the canvas. */
+  pointer-events: none;
+}
+
+.ability-bar__tooltip-slot {
+  width: min(320px, calc(100vw - 32px));
+}
+
+.ability-tooltip {
+  box-sizing: border-box;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: rgb(24 28 38 / 0.94);
+  box-shadow: 0 8px 32px rgb(0 0 0 / 0.4);
+  line-height: 1.4;
+  transform: translateY(0);
+  opacity: 1;
+  transition:
+    transform 0.2s ease-out,
+    opacity 0.2s ease-out;
+}
+
+/* The styles a new tooltip transitions from: it rises in from below. */
+@starting-style {
+  .ability-tooltip {
+    transform: translateY(8px);
+    opacity: 0;
+  }
+}
+
+.ability-tooltip__name {
+  margin: 0;
+  font-weight: 600;
+}
+
+.ability-tooltip__level {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 2px 0 6px;
+  color: #f2e394;
+  font-size: 0.85rem;
+}
+
+.ability-tooltip__pips {
+  display: inline-flex;
+  gap: 3px;
+}
+
+.ability-tooltip__pip,
+.ability-tooltip__pip--on {
+  width: 10px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgb(255 255 255 / 0.15);
+}
+
+.ability-tooltip__pip--on {
+  background: #f2e394;
+}
+
+.ability-tooltip__description {
+  margin: 0;
+  color: #b8b0a0;
+  font-size: 0.9rem;
+}
+
+.ability-bar__keys {
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  border-radius: 14px;
+  background: rgb(24 28 38 / 0.85);
+  box-shadow: 0 4px 16px rgb(0 0 0 / 0.3);
+  pointer-events: auto;
+}
+
+.ability-key {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 64px;
+  height: 56px;
+  border: 1px solid rgb(255 255 255 / 0.12);
+  border-radius: 10px;
+  background: rgb(255 255 255 / 0.05);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+}
+
+.ability-key:hover {
+  background: rgb(255 255 255 / 0.12);
+}
+
+.ability-key:focus-visible {
+  outline: 2px solid #f2e394;
+  outline-offset: 2px;
+}
+
+.ability-key--active {
+  border-color: #f2e394;
+}
+
+.ability-key__letter {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.ability-key__skill {
+  max-width: 100%;
+  overflow: hidden;
+  color: #b8b0a0;
+  font-size: 0.65rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ability-tooltip,
+  .ability-key {
+    transition: none;
+  }
+}

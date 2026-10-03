@@ -80,10 +80,26 @@ export const resumeData = {
   },
 
   skills: {
-    Q: { name: 'React', level: 5 },
-    W: { name: 'TypeScript', level: 5 },
-    E: { name: 'Accessibility', level: 4 },
-    R: { name: 'Three.js', level: 2 },
+    Q: {
+      name: 'React',
+      level: 5,
+      description: 'Six years of component architecture, from hooks-era SPAs to Server Components at scale.',
+    },
+    W: {
+      name: 'TypeScript',
+      level: 5,
+      description: 'Types as design: modelling domains so that invalid states fail to compile.',
+    },
+    E: {
+      name: 'Accessibility',
+      level: 4,
+      description: 'WCAG audits, ARIA patterns and screen-reader testing baked into every release.',
+    },
+    R: {
+      name: 'Three.js',
+      level: 2,
+      description: 'Learning in public: this arena is hand-built scene graph, render loop and all.',
+    },
   },
 
   contactLinks: [

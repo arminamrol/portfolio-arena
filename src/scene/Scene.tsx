@@ -1,6 +1,7 @@
 import { Canvas } from '@react-three/fiber'
 import { mapLayout } from '../map/mapLayout'
 import { resumeData } from '../resume/resumeData'
+import { AbilityEffects } from './AbilityEffects'
 import { CameraRig } from './CameraRig'
 import { Ground } from './Ground'
 import { Hero } from './Hero'
@@ -49,6 +50,7 @@ export function Scene() {
       <Towers lanes={layout.lanes} />
       <MoveTargetMarker />
       <Hero />
+      <AbilityEffects />
       <CameraRig />
     </Canvas>
   )

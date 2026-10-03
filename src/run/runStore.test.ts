@@ -171,6 +171,34 @@ describe('Run store', () => {
       expect(levels.at(-1)).toBe(MAX_LEVEL)
     })
   })
+
+  describe('Abilities', () => {
+    it('starts with no Ability cast', () => {
+      const run = createRunStore()
+
+      expect(run.getState().abilityCast).toBeNull()
+    })
+
+    it('casting an Ability records which key was cast', () => {
+      const run = createRunStore()
+
+      run.getState().castAbility('E')
+
+      expect(run.getState().abilityCast?.key).toBe('E')
+    })
+
+    it('casting the same Ability twice records two distinct casts', () => {
+      const run = createRunStore()
+
+      run.getState().castAbility('Q')
+      const first = run.getState().abilityCast
+      run.getState().castAbility('Q')
+      const second = run.getState().abilityCast
+
+      expect(second?.key).toBe('Q')
+      expect(second?.id).not.toBe(first?.id)
+    })
+  })
 })
 
 function allTowers() {

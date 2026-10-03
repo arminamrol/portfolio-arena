@@ -2,6 +2,7 @@ import { useStore } from 'zustand'
 import { createStore } from 'zustand/vanilla'
 import { mapLayout, type TowerLayout } from '../map/mapLayout'
 import { resumeData } from '../resume/resumeData'
+import type { AbilityKey } from '../resume/types'
 import { levelForXp, XP_PER_CAPTURE } from './level'
 import type { GroundPosition } from './movement'
 
@@ -19,9 +20,18 @@ export type RunState = {
   xp: number
   // Resume Entry id whose Info Panel is open, or null.
   openInfoPanel: string | null
+  // The latest Ability cast, or null. `id` is new on every cast, so casting
+  // the same key twice is still two changes that subscribers see.
+  abilityCast: AbilityCast | null
   heroMovedTo: (position: GroundPosition) => void
   setMoveTarget: (position: GroundPosition) => void
   closeInfoPanel: () => void
+  castAbility: (key: AbilityKey) => void
+}
+
+export type AbilityCast = {
+  key: AbilityKey
+  id: number
 }
 
 // Builds the state for one Run. A factory (rather than only a module-level
@@ -37,6 +47,7 @@ export function createRunStore() {
     captures: new Set(),
     xp: 0,
     openInfoPanel: null,
+    abilityCast: null,
 
     heroMovedTo: (position) => {
       const state = get()
@@ -68,6 +79,8 @@ export function createRunStore() {
     closeInfoPanel: () => set({ openInfoPanel: null }),
 
     setMoveTarget: (position) => set({ moveTarget: position }),
+
+    castAbility: (key) => set((state) => ({ abilityCast: { key, id: (state.abilityCast?.id ?? 0) + 1 } })),
   }))
 }
 

@@ -10,9 +10,14 @@ const entry: ResumeEntry = { id: 'e', title: 'Title', subtitle: 'Subtitle', body
 describe('Resume Data types', () => {
   it('reject a Skill level outside 1–5', () => {
     // @ts-expect-error level 6 is out of range
-    void ({ name: 'React', level: 6 } satisfies Skill)
+    void ({ name: 'React', level: 6, description: 'd' } satisfies Skill)
     // @ts-expect-error level 0 is out of range
-    void ({ name: 'React', level: 0 } satisfies Skill)
+    void ({ name: 'React', level: 0, description: 'd' } satisfies Skill)
+  })
+
+  it('reject a Skill without a description', () => {
+    // @ts-expect-error description is missing
+    void ({ name: 'React', level: 3 } satisfies Skill)
   })
 
   it('reject a Lane with fewer than 2 or more than 3 Resume Entries', () => {

@@ -28,13 +28,18 @@ export type LaneKey = 'top' | 'mid' | 'bottom'
 
 export type SkillLevel = 1 | 2 | 3 | 4 | 5
 
+export const MAX_SKILL_LEVEL = 5
+
 export type Skill = {
   name: string
   level: SkillLevel
+  // One or two sentences, shown in the Ability's tooltip.
+  description: string
 }
 
-// The four Ability keys; each reveals one Skill.
-export type AbilityKey = 'Q' | 'W' | 'E' | 'R'
+// The four Ability keys, in Ability bar order; each reveals one Skill.
+export const ABILITY_KEYS = ['Q', 'W', 'E', 'R'] as const
+export type AbilityKey = (typeof ABILITY_KEYS)[number]
 
 // GitHub, LinkedIn, email, resume PDF. Shown as Shop Items.
 export type ContactLink = Link
