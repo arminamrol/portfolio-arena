@@ -1,5 +1,7 @@
 import { useStore } from 'zustand'
 import { createStore } from 'zustand/vanilla'
+import { mapLayout } from '../map/mapLayout'
+import { resumeData } from '../resume/resumeData'
 import type { GroundPosition } from './movement'
 
 export type RunState = {
@@ -13,7 +15,8 @@ export type RunState = {
 // store) lets each test start from a fresh Run.
 export function createRunStore() {
   return createStore<RunState>()((set) => ({
-    heroPosition: { x: 0, z: 0 },
+    // A copy, so the Run never shares an object with the map layout.
+    heroPosition: { ...mapLayout(resumeData).base },
     moveTarget: null,
 
     heroMovedTo: (position) =>

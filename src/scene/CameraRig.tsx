@@ -1,5 +1,5 @@
 import { useFrame, useThree } from '@react-three/fiber'
-import { useEffect } from 'react'
+import { useEffect, useLayoutEffect } from 'react'
 import { MathUtils } from 'three'
 import { runStore } from '../run/runStore'
 import { CAMERA_OFFSET, zoomAfterWheel } from './isometricCamera'
@@ -15,6 +15,14 @@ const PIXELS_PER_LINE = 16
 export function CameraRig() {
   const camera = useThree((state) => state.camera)
   const canvas = useThree((state) => state.gl.domElement)
+
+  // Start already framing the Hero at the Base instead of gliding in from
+  // the origin, where the camera was first aimed.
+  useLayoutEffect(() => {
+    const { heroPosition } = runStore.getState()
+    camera.position.x = heroPosition.x + offsetX
+    camera.position.z = heroPosition.z + offsetZ
+  }, [camera])
 
   useFrame((_, delta) => {
     const { heroPosition } = runStore.getState()

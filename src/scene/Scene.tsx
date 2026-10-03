@@ -1,10 +1,17 @@
 import { Canvas } from '@react-three/fiber'
+import { mapLayout } from '../map/mapLayout'
+import { resumeData } from '../resume/resumeData'
 import { CameraRig } from './CameraRig'
 import { Ground } from './Ground'
 import { Hero } from './Hero'
+import { Lanes } from './Lanes'
+import { Base, Nexus, Shop } from './Landmarks'
 import { Lights } from './Lights'
 import { MoveTargetMarker } from './MoveTargetMarker'
+import { Towers } from './Towers'
 import { CAMERA_OFFSET } from './isometricCamera'
+
+const layout = mapLayout(resumeData)
 
 export function Scene() {
   return (
@@ -35,6 +42,11 @@ export function Scene() {
       <color attach="background" args={['#1d2330']} />
       <Lights />
       <Ground />
+      <Lanes lanes={layout.lanes} />
+      <Base position={layout.base} />
+      <Shop position={layout.shop} />
+      <Nexus position={layout.nexus} />
+      <Towers lanes={layout.lanes} />
       <MoveTargetMarker />
       <Hero />
       <CameraRig />

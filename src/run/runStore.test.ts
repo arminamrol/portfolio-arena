@@ -1,11 +1,13 @@
 import { describe, expect, it } from 'vitest'
+import { mapLayout } from '../map/mapLayout'
+import { resumeData } from '../resume/resumeData'
 import { createRunStore } from './runStore'
 
 describe('Run store', () => {
-  it('starts the Hero at the origin with no move target', () => {
+  it('starts the Hero at the Base with no move target', () => {
     const run = createRunStore()
 
-    expect(run.getState().heroPosition).toEqual({ x: 0, z: 0 })
+    expect(run.getState().heroPosition).toEqual(mapLayout(resumeData).base)
     expect(run.getState().moveTarget).toBeNull()
   })
 
