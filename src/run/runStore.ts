@@ -2,6 +2,7 @@ import { useStore } from 'zustand'
 import { createStore } from 'zustand/vanilla'
 import { mapLayout, type TowerLayout } from '../map/mapLayout'
 import { resumeData } from '../resume/resumeData'
+import { levelForXp, XP_PER_CAPTURE } from './level'
 import type { GroundPosition } from './movement'
 
 // How close (in world units) the Hero must stand to a Tower's centre to be
@@ -14,6 +15,8 @@ export type RunState = {
   moveTarget: GroundPosition | null
   // Resume Entry ids of the Captured Towers.
   captures: ReadonlySet<string>
+  // Earned only by Captures. Level is not stored: read it with selectLevel.
+  xp: number
   // Resume Entry id whose Info Panel is open, or null.
   openInfoPanel: string | null
   heroMovedTo: (position: GroundPosition) => void
@@ -32,6 +35,7 @@ export function createRunStore() {
     heroPosition: { ...layout.base },
     moveTarget: null,
     captures: new Set(),
+    xp: 0,
     openInfoPanel: null,
 
     heroMovedTo: (position) => {
@@ -50,7 +54,10 @@ export function createRunStore() {
         if (wasIn !== null) update.openInfoPanel = null
         if (nowIn !== null) {
           // Only the first entry is a Capture; later ones just reopen.
-          if (!state.captures.has(nowIn)) update.captures = new Set(state.captures).add(nowIn)
+          if (!state.captures.has(nowIn)) {
+            update.captures = new Set(state.captures).add(nowIn)
+            update.xp = state.xp + XP_PER_CAPTURE
+          }
           update.openInfoPanel = nowIn
         }
       }
@@ -62,6 +69,13 @@ export function createRunStore() {
 
     setMoveTarget: (position) => set({ moveTarget: position }),
   }))
+}
+
+// Level, derived from XP. Returns a number, so a component subscribed with
+// `useRunStore(selectLevel)` re-renders only when the Level changes, not on
+// every Hero move.
+export function selectLevel(state: RunState) {
+  return levelForXp(state.xp)
 }
 
 // Proximity is a plain distance check against each Tower's centre: no
