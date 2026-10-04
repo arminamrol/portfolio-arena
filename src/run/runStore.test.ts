@@ -84,28 +84,28 @@ describe('Run store', () => {
   describe('Capture and Info Panel', () => {
     it('Captures a Tower and opens its Info Panel when the Hero enters its range', () => {
       const run = createRunStore()
-      const tower = towerByEntry('tiny-charts')
+      const tower = towerByEntry('rah-ahan-mobile-app')
 
       run.getState().heroMovedTo(tower.position)
 
-      expect(run.getState().captures).toEqual(new Set(['tiny-charts']))
-      expect(run.getState().openInfoPanel).toBe('tiny-charts')
+      expect(run.getState().captures).toEqual(new Set(['rah-ahan-mobile-app']))
+      expect(run.getState().openInfoPanel).toBe('rah-ahan-mobile-app')
     })
 
     it('closes the Info Panel when the Hero walks out of range', () => {
       const run = createRunStore()
-      const tower = towerByEntry('tiny-charts')
+      const tower = towerByEntry('rah-ahan-mobile-app')
       run.getState().heroMovedTo(tower.position)
 
       run.getState().heroMovedTo({ x: tower.position.x + 5, z: tower.position.z })
 
       expect(run.getState().openInfoPanel).toBeNull()
-      expect(run.getState().captures).toEqual(new Set(['tiny-charts']))
+      expect(run.getState().captures).toEqual(new Set(['rah-ahan-mobile-app']))
     })
 
     it('keeps the Info Panel closed after closing it while the Hero is still in range', () => {
       const run = createRunStore()
-      const tower = towerByEntry('tiny-charts')
+      const tower = towerByEntry('rah-ahan-mobile-app')
       run.getState().heroMovedTo(tower.position)
 
       run.getState().closeInfoPanel()
@@ -116,21 +116,21 @@ describe('Run store', () => {
 
     it('reopens a Captured Tower\'s Info Panel on re-entry without Capturing it again', () => {
       const run = createRunStore()
-      const tower = towerByEntry('tiny-charts')
+      const tower = towerByEntry('rah-ahan-mobile-app')
       run.getState().heroMovedTo(tower.position)
       run.getState().heroMovedTo({ x: tower.position.x + 5, z: tower.position.z })
       const capturesBefore = run.getState().captures
 
       run.getState().heroMovedTo(tower.position)
 
-      expect(run.getState().openInfoPanel).toBe('tiny-charts')
+      expect(run.getState().openInfoPanel).toBe('rah-ahan-mobile-app')
       // The same set, untouched: no second Capture happened.
       expect(run.getState().captures).toBe(capturesBefore)
     })
 
     it('walking to each Tower\'s position Captures that Tower and only that one', () => {
       const towers = allTowers()
-      expect(towers).toHaveLength(7)
+      expect(towers).toHaveLength(Object.values(resumeData.lanes).flatMap((lane) => lane.entries).length)
 
       for (const tower of towers) {
         const run = createRunStore()
@@ -163,7 +163,7 @@ describe('Run store', () => {
     it('grants XP_PER_CAPTURE for a Capture', () => {
       const run = createRunStore()
 
-      run.getState().heroMovedTo(towerByEntry('tiny-charts').position)
+      run.getState().heroMovedTo(towerByEntry('rah-ahan-mobile-app').position)
 
       expect(run.getState().xp).toBe(XP_PER_CAPTURE)
       expect(selectLevel(run.getState())).toBe(2)
@@ -171,7 +171,7 @@ describe('Run store', () => {
 
     it('grants no XP for re-entering a Captured Tower', () => {
       const run = createRunStore()
-      const tower = towerByEntry('tiny-charts')
+      const tower = towerByEntry('rah-ahan-mobile-app')
       run.getState().heroMovedTo(tower.position)
       run.getState().heroMovedTo({ x: tower.position.x + 5, z: tower.position.z })
 
@@ -182,7 +182,7 @@ describe('Run store', () => {
 
     it('grants no XP for standing in a Tower\'s range', () => {
       const run = createRunStore()
-      const tower = towerByEntry('tiny-charts')
+      const tower = towerByEntry('rah-ahan-mobile-app')
       run.getState().heroMovedTo(tower.position)
 
       run.getState().heroMovedTo({ x: tower.position.x + 0.5, z: tower.position.z })

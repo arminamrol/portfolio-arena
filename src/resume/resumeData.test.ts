@@ -53,23 +53,22 @@ describe('Resume Data types', () => {
   })
 })
 
-describe('placeholder Resume Data', () => {
+describe('Resume Data', () => {
   it('gives every Resume Entry a unique id', () => {
     const ids = Object.values(resumeData.lanes).flatMap((lane) => lane.entries.map((e) => e.id))
 
     expect(new Set(ids).size).toBe(ids.length)
   })
 
-  // So the Info Panel's longest and empty cases both show before the real
-  // content lands.
-  it('has a Resume Entry with 5 Highlights and one with none', () => {
-    const counts = Object.values(resumeData.lanes).flatMap((lane) => lane.entries.map((e) => e.highlights.length))
-
-    expect(counts).toContain(5)
-    expect(counts).toContain(0)
-  })
-
-  it('has four Contact Links', () => {
-    expect(resumeData.contactLinks).toHaveLength(4)
+  it('lists the owner\'s Contact Links, with the Resume PDF hosted as a GitHub Release asset', () => {
+    expect(resumeData.contactLinks).toEqual([
+      { label: 'GitHub', url: 'https://github.com/arminamrol/' },
+      { label: 'LinkedIn', url: 'https://www.linkedin.com/in/armin-amrollahian/' },
+      { label: 'Email', url: 'mailto:arminamrol@gmail.com' },
+      {
+        label: 'Resume PDF',
+        url: 'https://github.com/arminamrol/portfolio-arena/releases/latest/download/Armin-Amrollahian.pdf',
+      },
+    ])
   })
 })
