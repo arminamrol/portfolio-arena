@@ -106,8 +106,12 @@
     border-color 0.15s;
 }
 
-.ability-key:hover {
-  background: rgb(255 255 255 / 0.12);
+/* Only where a pointer really hovers: on a touch screen :hover sticks to
+   the last key tapped. */
+@media (hover: hover) {
+  .ability-key:hover {
+    background: rgb(255 255 255 / 0.12);
+  }
 }
 
 .ability-key:focus-visible {
@@ -137,5 +141,28 @@
   .ability-tooltip,
   .ability-key {
     transition: none;
+  }
+}
+
+/* Phones (see SMALL_SCREEN_QUERY in display/displayProfile.ts): smaller
+   keys, still well above the ~44px a fingertip needs. */
+@media (max-width: 640px), (max-height: 500px) {
+  .ability-bar__keys {
+    gap: 6px;
+    padding: 6px;
+  }
+
+  .ability-key {
+    width: 56px;
+    height: 48px;
+  }
+}
+
+/* A phone held upright: the bar sits above the Skip control, which keeps
+   the bottom left corner, since the screen is too narrow for both in one
+   row. */
+@media (max-width: 640px) {
+  .ability-bar {
+    bottom: 60px;
   }
 }

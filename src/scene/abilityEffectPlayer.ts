@@ -15,8 +15,21 @@ import {
 import type { AbilityKey } from '../resume/types'
 
 // The most effects alive at once. Spamming past it drops the oldest early,
-// so holding down every key can never pile up draw calls.
+// so holding down every key can never pile up draw calls. A phone's GPU
+// gets half as many.
 export const MAX_ACTIVE_EFFECTS = 8
+export const MAX_ACTIVE_SIMPLE_EFFECTS = 4
+
+// How effects are drawn. `detail: 'simple'` (small screens) builds each one
+// from fewer meshes: fewer draw calls and less overdraw from the additive
+// glow. `calm` (reduced motion) replaces every effect with a still glow
+// under the Hero that only fades in and out: nothing spins, flies or grows.
+export type EffectStyle = {
+  detail: 'full' | 'simple'
+  calm: boolean
+}
+
+const FULL_STYLE: EffectStyle = { detail: 'full', calm: false }
 
 // Geometry is shared by every cast and never disposed: its vertex buffers
 // are uploaded to the GPU once and reused for the life of the page. Only
@@ -44,13 +57,20 @@ type ActiveEffect = Effect & { elapsed: number }
 // Plays the Ability effects around one point. Plain Three.js, no React: the
 // scene component adds `root` to the scene, moves it with the Hero and calls
 // `update` every frame.
+// The style can change at any time (a rotated phone, the OS setting
+// toggled); it applies from the next cast, and effects already playing
+// finish as they started.
 export class AbilityEffectPlayer {
   readonly root = new Group()
   private active: ActiveEffect[] = []
 
+  constructor(public style: EffectStyle = FULL_STYLE) {}
+
   play(key: AbilityKey) {
-    if (this.active.length >= MAX_ACTIVE_EFFECTS) this.finish(this.active[0])
-    const effect: ActiveEffect = { ...effects[key](), elapsed: 0 }
+    const cap = this.style.detail === 'simple' ? MAX_ACTIVE_SIMPLE_EFFECTS : MAX_ACTIVE_EFFECTS
+    while (this.active.length >= cap) this.finish(this.active[0])
+    const build = this.style.calm ? () => calmEffect(EFFECT_COLORS[key]) : () => effects[key](this.style.detail === 'simple')
+    const effect: ActiveEffect = { ...build(), elapsed: 0 }
     effect.update(0)
     this.root.add(effect.object)
     this.active.push(effect)
@@ -99,20 +119,30 @@ function glowMaterial(color: ColorRepresentation) {
 
 const easeOutCubic = (t: number) => 1 - (1 - t) ** 3
 
+// Each Ability's colour, shared by its full and its calm effect.
+const EFFECT_COLORS: Record<AbilityKey, ColorRepresentation> = {
+  Q: '#5fd4f4',
+  W: '#4f7dff',
+  E: '#6fe0a2',
+  R: '#ff9a3c',
+}
+
 // One effect per Ability key. All original shapes built from primitives.
-const effects: Record<AbilityKey, () => Effect> = {
+// `simple` asks for the small-screen version with fewer parts.
+const effects: Record<AbilityKey, (simple: boolean) => Effect> = {
   // Q: three tilted orbits around the Hero's chest that spin, widen and fade.
-  Q: () => {
-    const material = glowMaterial('#5fd4f4')
+  Q: (simple) => {
+    const ORBITS = simple ? 2 : 3
+    const material = glowMaterial(EFFECT_COLORS.Q)
     const object = new Group()
     object.position.y = 0.9
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < ORBITS; i++) {
       const orbit = new Mesh(orbitGeometry, material)
-      // Each orbit is tipped 70° off flat, then turned a third of a circle
-      // further than the last, like electron paths in an atom diagram.
+      // Each orbit is tipped 70° off flat, then turned an equal share of a
+      // circle further than the last, like electron paths in an atom diagram.
       orbit.rotation.set(Math.PI / 2 - 0.35, 0, 0)
       const pivot = new Group()
-      pivot.rotation.y = (i * Math.PI * 2) / 3
+      pivot.rotation.y = (i * Math.PI * 2) / ORBITS
       pivot.add(orbit)
       object.add(pivot)
     }
@@ -129,10 +159,10 @@ const effects: Record<AbilityKey, () => Effect> = {
   },
 
   // W: three rings ripple out across the ground, one after another.
-  W: () => {
-    const RIPPLES = 3
+  W: (simple) => {
+    const RIPPLES = simple ? 2 : 3
     const STAGGER = 0.25
-    const materials = Array.from({ length: RIPPLES }, () => glowMaterial('#4f7dff'))
+    const materials = Array.from({ length: RIPPLES }, () => glowMaterial(EFFECT_COLORS.W))
     const object = new Group()
     const rings = materials.map((material) => {
       const ring = new Mesh(pulseGeometry, material)
@@ -159,15 +189,17 @@ const effects: Record<AbilityKey, () => Effect> = {
     }
   },
 
-  // E: a column of light rises from a glowing disc under the Hero.
-  E: () => {
-    const material = glowMaterial('#6fe0a2')
+  // E: a column of light rises from a glowing disc under the Hero. The
+  // small-screen version is the column alone.
+  E: (simple) => {
+    const material = glowMaterial(EFFECT_COLORS.E)
     const object = new Group()
     const column = new Mesh(beaconGeometry, material)
     const base = new Mesh(beaconBaseGeometry, material)
     base.rotation.x = -Math.PI / 2
     base.position.y = 0.06
-    object.add(column, base)
+    object.add(column)
+    if (!simple) object.add(base)
     return {
       object,
       materials: [material],
@@ -184,10 +216,10 @@ const effects: Record<AbilityKey, () => Effect> = {
   },
 
   // R: shards burst out of the Hero, arc up, fall and wink out.
-  R: () => {
-    const SHARDS = 10
+  R: (simple) => {
+    const SHARDS = simple ? 6 : 10
     const GRAVITY = -9
-    const material = glowMaterial('#ff9a3c')
+    const material = glowMaterial(EFFECT_COLORS.R)
     const object = new Group()
     object.position.y = 0.9
     const shards = Array.from({ length: SHARDS }, (_, i) => {
@@ -216,4 +248,23 @@ const effects: Record<AbilityKey, () => Effect> = {
       },
     }
   },
+}
+
+// The reduced-motion effect for every Ability: a soft disc of the Ability's
+// colour on the ground under the Hero that brightens and dims in place.
+// Only opacity changes, so the cast still reads, by colour, without motion.
+function calmEffect(color: ColorRepresentation): Effect {
+  const material = glowMaterial(color)
+  const object = new Mesh(beaconBaseGeometry, material)
+  object.rotation.x = -Math.PI / 2
+  object.position.y = 0.06
+  object.scale.setScalar(1.2)
+  return {
+    object,
+    materials: [material],
+    duration: 1,
+    update: (t) => {
+      material.opacity = Math.sin(t * Math.PI) * 0.6
+    },
+  }
 }

@@ -2,8 +2,7 @@ import { useThree, type ThreeEvent } from '@react-three/fiber'
 import { useEffect } from 'react'
 import { GROUND_SIZE } from '../map/mapLayout'
 import { runStore } from '../run/runStore'
-
-const RIGHT_BUTTON = 2
+import { isMoveGesture } from './moveGesture'
 
 export function Ground() {
   const canvas = useThree((state) => state.gl.domElement)
@@ -23,8 +22,9 @@ export function Ground() {
   // through that point (Raycaster.setFromCamera), tests the ray against the
   // meshes that have handlers, and calls the handler of each mesh hit,
   // nearest first. `event.point` is the exact world-space spot the ray hit.
+  // A tap on a phone arrives as the same pointerdown, raycast the same way.
   function handlePointerDown(event: ThreeEvent<PointerEvent>) {
-    if (event.button !== RIGHT_BUTTON) return
+    if (!isMoveGesture(event)) return
     runStore.getState().setMoveTarget({ x: event.point.x, z: event.point.z })
   }
 

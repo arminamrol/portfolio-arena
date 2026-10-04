@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { MAX_ZOOM, MIN_ZOOM, isometricCameraPosition, zoomAfterWheel } from './isometricCamera'
+import { MAX_ZOOM, MIN_ZOOM, followStep, isometricCameraPosition, zoomAfterWheel } from './isometricCamera'
 
 describe('isometricCameraPosition', () => {
   it('sits on the true isometric diagonal at the requested distance', () => {
@@ -23,5 +23,26 @@ describe('zoomAfterWheel', () => {
   it('never leaves the zoom limits', () => {
     expect(zoomAfterWheel(MAX_ZOOM, -10_000)).toBe(MAX_ZOOM)
     expect(zoomAfterWheel(MIN_ZOOM, 10_000)).toBe(MIN_ZOOM)
+  })
+})
+
+describe('followStep', () => {
+  // One frame at 60 fps.
+  const FRAME = 1 / 60
+
+  it('glides toward the Hero, closing only part of the gap in one frame', () => {
+    const next = followStep(0, 10, FRAME, false)
+    expect(next).toBeGreaterThan(0)
+    expect(next).toBeLessThan(1)
+  })
+
+  it('gets close to the Hero within a second', () => {
+    let position = 0
+    for (let frame = 0; frame < 60; frame++) position = followStep(position, 10, FRAME, false)
+    expect(position).toBeGreaterThan(9.9)
+  })
+
+  it('stays locked on the Hero under reduced motion, with no glide to catch up', () => {
+    expect(followStep(0, 10, FRAME, true)).toBe(10)
   })
 })

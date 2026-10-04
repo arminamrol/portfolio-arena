@@ -1,6 +1,7 @@
 import { useFrame } from '@react-three/fiber'
 import { useRef } from 'react'
 import type { Group } from 'three'
+import { useDisplayProfile } from '../display/displayProfile'
 import type { GroundPosition } from '../run/movement'
 import { useRevealed } from '../run/runStore'
 import { Model } from './Model'
@@ -35,9 +36,12 @@ export function Nexus({ position }: { position: GroundPosition }) {
   // Hidden until revealed: it would stick up through the Fog (see Towers).
   const revealed = useRevealed(position)
   const crystal = useRef<Group>(null)
+  // A slow, endless spin is ambient motion: under reduced motion the
+  // crystal holds still.
+  const { reducedMotion } = useDisplayProfile()
 
   useFrame((_, delta) => {
-    if (crystal.current) crystal.current.rotation.y += NEXUS_SPIN * delta
+    if (crystal.current && !reducedMotion) crystal.current.rotation.y += NEXUS_SPIN * delta
   })
 
   return (

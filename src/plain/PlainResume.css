@@ -7,6 +7,9 @@
   color: #ece6d8;
   font-family: system-ui, sans-serif;
   line-height: 1.6;
+  /* Long link text (URLs, email addresses) wraps instead of pushing the
+     page wider than a phone's screen. */
+  overflow-wrap: anywhere;
 }
 
 .plain-resume__page {
@@ -101,7 +104,7 @@
 
 .plain-resume__skills {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
   gap: 24px;
 }
 
@@ -126,4 +129,15 @@
 
 .plain-resume__pip--filled {
   background: #f2e394;
+}
+
+/* Breakpoints match display/displayProfile.ts: keep them in step. */
+@media (max-width: 640px) {
+  .plain-resume__page {
+    padding-top: 32px;
+  }
+
+  .plain-resume__name {
+    font-size: 1.75rem;
+  }
 }

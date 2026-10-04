@@ -22,3 +22,17 @@ export const MAX_ZOOM = 80
 export function zoomAfterWheel(zoom: number, wheelDeltaY: number): number {
   return MathUtils.clamp(zoom * Math.exp(-wheelDeltaY * 0.001), MIN_ZOOM, MAX_ZOOM)
 }
+
+// How quickly the camera catches up with the Hero (higher = tighter follow).
+const FOLLOW_SHARPNESS = 5
+
+// One frame of the camera following the Hero along one axis. Damping makes
+// it fast when far behind, slowing as it closes in, so the view glides
+// after the Hero and keeps drifting a moment after the Hero stops. That
+// lag-and-settle is extra motion on screen, so under reduced motion the
+// camera stays locked on the Hero instead: the world scrolls at the Hero's
+// own steady pace and stops the moment the Hero does.
+export function followStep(current: number, target: number, delta: number, reducedMotion: boolean): number {
+  if (reducedMotion) return target
+  return MathUtils.damp(current, target, FOLLOW_SHARPNESS, delta)
+}

@@ -4,9 +4,10 @@
      the Ability bar and minimap. */
   bottom: 16px;
   left: 16px;
-  /* Above every other overlay (all fixed, z-index auto), the Shop panel and
-     the Victory screen included, so it is visible at all times. */
-  z-index: 1;
+  /* Above every other overlay, the panels (z-index 1) and the Victory and
+     loading screens (z-index 1, later in the DOM) included, so it is visible
+     at all times. */
+  z-index: 2;
   padding: 8px 16px;
   border: 1px solid #f2e394;
   border-radius: 8px;

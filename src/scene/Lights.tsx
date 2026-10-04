@@ -1,3 +1,4 @@
+import { useDisplayProfile } from '../display/displayProfile'
 import { GROUND_SIZE } from '../map/mapLayout'
 
 // Half the side of the shadow camera's box. The sun looks at the map from
@@ -5,7 +6,15 @@ import { GROUND_SIZE } from '../map/mapLayout'
 // reach the map's corners (half the diagonal), not just its sides.
 const SHADOW_EXTENT = (GROUND_SIZE / 2) * Math.SQRT2
 
+// Shadow map resolution: 2048² on a desktop, a quarter of the texels on a
+// phone, whose GPU pays for every one of them each frame.
+const SHADOW_MAP_SIZE = 2048
+const SMALL_SCREEN_SHADOW_MAP_SIZE = 1024
+
 export function Lights() {
+  const { smallScreen } = useDisplayProfile()
+  const shadowMapSize = smallScreen ? SMALL_SCREEN_SHADOW_MAP_SIZE : SHADOW_MAP_SIZE
+
   return (
     <>
       {/* AmbientLight lifts every surface equally: no direction, no shadows.
@@ -23,11 +32,16 @@ export function Lights() {
           receiveShadow do the check. mapSize is the texture's resolution:
           2048² spread over the whole map gives the small models crisp
           enough shadows for one extra depth pass per frame. */}
+      {/* The shadow map texture is created at the first render that needs
+          it, at the size set then; changing mapSize later does not resize
+          it. Keyed by the size, so a change remounts the light and a new
+          map is made at the new size. */}
       <directionalLight
+        key={shadowMapSize}
         position={[8, 15, 5]}
         intensity={2}
         castShadow
-        shadow-mapSize={[2048, 2048]}
+        shadow-mapSize={[shadowMapSize, shadowMapSize]}
         // A surface compared against its own stored depth can shadow itself
         // in stripes ("shadow acne"), from the map's limited precision.
         // normalBias pushes the lookup out along the surface normal, past

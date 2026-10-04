@@ -2,7 +2,8 @@ import { useFrame, useThree } from '@react-three/fiber'
 import { useLayoutEffect, useRef } from 'react'
 import { CircleGeometry, MeshBasicMaterial, PlaneGeometry, type BufferGeometry, type Group } from 'three'
 import type { MapLayout, TowerLayout } from '../map/mapLayout'
-import { MINIMAP_MARGIN, MINIMAP_SIZE, minimapCamera } from '../minimap/minimapCamera'
+import { useDisplayProfile } from '../display/displayProfile'
+import { minimapCamera, minimapPlacement, minimapViewport } from '../minimap/minimapCamera'
 import type { GroundPosition } from '../run/movement'
 import { runStore, useRevealed, useRunStore } from '../run/runStore'
 import { MAIN_VIEW_LAYER, minimapOnlyLayers } from './layers'
@@ -33,6 +34,7 @@ const nexusIconMaterial = new MeshBasicMaterial({ color: '#9d7be0' })
 // minimapCamera, into the bottom-right square of the canvas.
 export function MinimapView({ layout }: { layout: MapLayout }) {
   const camera = useThree((state) => state.camera)
+  const placement = minimapPlacement(useDisplayProfile())
   // The main camera sees layer 0 by default; add the main-view-only layer.
   useLayoutEffect(() => {
     camera.layers.enable(MAIN_VIEW_LAYER)
@@ -55,10 +57,10 @@ export function MinimapView({ layout }: { layout: MapLayout }) {
     //    It does not stop drawing outside it, though, and clearing ignores
     //    it entirely, so the scissor test clips every pixel write (the clear
     //    included) to the same rectangle. WebGL counts y from the bottom, so
-    //    "bottom right" is a small y, not a large one.
-    const x = size.width - MINIMAP_MARGIN - MINIMAP_SIZE
-    gl.setViewport(x, MINIMAP_MARGIN, MINIMAP_SIZE, MINIMAP_SIZE)
-    gl.setScissor(x, MINIMAP_MARGIN, MINIMAP_SIZE, MINIMAP_SIZE)
+    //    "bottom right" is a small y and "top right" a large one.
+    const { x, y, size: side } = minimapViewport(placement, size.width, size.height)
+    gl.setViewport(x, y, side, side)
+    gl.setScissor(x, y, side, side)
     gl.setScissorTest(true)
     // Shadow maps depend on the lights, not on the camera looking, so the
     // ones the main pass just rendered are still valid. Without this, every

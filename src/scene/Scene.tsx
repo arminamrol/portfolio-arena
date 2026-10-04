@@ -35,8 +35,11 @@ export function Scene() {
     // watches the container size: on resize it calls renderer.setSize and
     // updates the camera's projection, so the image never stretches.
     <Canvas
-      // devicePixelRatio clamped to [1, 2]: retina screens can be 3x, which
-      // means 9x the pixels to shade for little visible gain.
+      // devicePixelRatio clamped to [1, 2]. The canvas's drawing buffer is
+      // its CSS size times this ratio, and every one of those pixels runs
+      // the fragment shaders each frame. Many phones are 3x: capping at 2
+      // shades 4/9 of the pixels, a big saving on a small GPU for a
+      // difference hard to see on a small screen.
       dpr={[1, 2]}
       // "percentage" = PCFShadowMap: filtered shadow edges. (The soft variant
       // was removed from recent Three.js releases.)

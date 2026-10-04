@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { GROUND_SIZE, mapLayout } from '../map/mapLayout'
 import { resumeData } from '../resume/resumeData'
-import { minimapToWorld } from './minimapCamera'
+import { minimapPlacement, minimapToWorld, minimapViewport } from './minimapCamera'
 
 const layout = mapLayout(resumeData)
 const half = GROUND_SIZE / 2
@@ -42,5 +42,34 @@ describe('minimapToWorld', () => {
     const world = minimapToWorld(1.2, -0.1)
     expect(world.x).toBeCloseTo(-half)
     expect(world.z).toBeCloseTo(-half)
+  })
+})
+
+const LARGE = { smallScreen: false, narrowScreen: false }
+const SIDEWAYS_PHONE = { smallScreen: true, narrowScreen: false }
+const UPRIGHT_PHONE = { smallScreen: true, narrowScreen: true }
+
+describe('minimapPlacement', () => {
+  it('puts a 200px minimap in the bottom right of a large screen', () => {
+    expect(minimapPlacement(LARGE)).toEqual({ size: 200, margin: 16, corner: 'bottom' })
+  })
+
+  it('shrinks the minimap on a phone turned sideways, keeping it bottom right', () => {
+    expect(minimapPlacement(SIDEWAYS_PHONE)).toEqual({ size: 112, margin: 16, corner: 'bottom' })
+  })
+
+  it('moves the minimap to the top right of a phone held upright, clear of the Ability bar', () => {
+    expect(minimapPlacement(UPRIGHT_PHONE)).toEqual({ size: 112, margin: 16, corner: 'top' })
+  })
+})
+
+describe('minimapViewport', () => {
+  // WebGL measures y up from the canvas's bottom edge, the DOM down from its top.
+  it('places a bottom-right minimap a margin up from the bottom', () => {
+    expect(minimapViewport(minimapPlacement(LARGE), 1000, 800)).toEqual({ x: 784, y: 16, size: 200 })
+  })
+
+  it('places a top-right minimap a margin down from the top', () => {
+    expect(minimapViewport(minimapPlacement(UPRIGHT_PHONE), 390, 844)).toEqual({ x: 262, y: 716, size: 112 })
   })
 })

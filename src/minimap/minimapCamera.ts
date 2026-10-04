@@ -1,13 +1,43 @@
 import { MathUtils, OrthographicCamera, Vector3 } from 'three'
+import type { DisplayProfile } from '../display/displayProfile'
 import { GROUND_SIZE } from '../map/mapLayout'
 import type { GroundPosition } from '../run/movement'
 import { MINIMAP_LAYER } from '../scene/layers'
 
-// The minimap's on-screen square, in CSS pixels. The scene draws into this
-// region of the canvas and the DOM frame sits exactly on top of it, so both
-// read these numbers.
-export const MINIMAP_SIZE = 200
-export const MINIMAP_MARGIN = 16
+// The minimap's on-screen square, in CSS pixels: its side, its gap from the
+// screen's edges, and which right-hand corner it sits in. The scene draws
+// into this region of the canvas and the DOM frame sits exactly on top of
+// it, so both read it from minimapPlacement.
+export type MinimapPlacement = {
+  size: number
+  margin: number
+  corner: 'top' | 'bottom'
+}
+
+const LARGE_SIZE = 200
+const SMALL_SIZE = 112
+const MARGIN = 16
+
+// Bottom right, as on a desktop, unless the phone is held upright: there the
+// bottom edge holds the Ability bar and the Skip control, so the minimap
+// moves up to the top right, opposite the HUD.
+export function minimapPlacement({ smallScreen, narrowScreen }: Pick<DisplayProfile, 'smallScreen' | 'narrowScreen'>): MinimapPlacement {
+  return {
+    size: smallScreen ? SMALL_SIZE : LARGE_SIZE,
+    margin: MARGIN,
+    corner: narrowScreen ? 'top' : 'bottom',
+  }
+}
+
+// The same square as a WebGL viewport, in CSS pixels on a canvas of the
+// given size. WebGL counts y up from the bottom edge, unlike the DOM.
+export function minimapViewport({ size, margin, corner }: MinimapPlacement, canvasWidth: number, canvasHeight: number) {
+  return {
+    x: canvasWidth - margin - size,
+    y: corner === 'bottom' ? margin : canvasHeight - margin - size,
+    size,
+  }
+}
 
 const HALF = GROUND_SIZE / 2
 

@@ -1,11 +1,12 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { MINIMAP_SIZE, minimapToWorld } from '../minimap/minimapCamera'
+import { minimapToWorld } from '../minimap/minimapCamera'
 import { runStore } from '../run/runStore'
 import { Minimap } from './Minimap'
 
 const LEFT = 100
 const TOP = 500
+const MINIMAP_SIZE = 200
 
 describe('Minimap', () => {
   // The minimap writes to the page's Run singleton, so start each test from a fresh Run.
@@ -23,7 +24,7 @@ describe('Minimap', () => {
   it('sets the Hero\'s move target to the world position under a click', () => {
     const minimap = renderMinimap()
 
-    fireEvent.pointerDown(minimap, { button: 0, clientX: LEFT + MINIMAP_SIZE * 0.75, clientY: TOP + MINIMAP_SIZE * 0.25 })
+    fireEvent.pointerDown(minimap, { isPrimary: true, button: 0, clientX: LEFT + MINIMAP_SIZE * 0.75, clientY: TOP + MINIMAP_SIZE * 0.25 })
 
     const expected = minimapToWorld(0.75, 0.25)
     expect(runStore.getState().moveTarget?.x).toBeCloseTo(expected.x)
@@ -33,23 +34,41 @@ describe('Minimap', () => {
   it('keeps steering while the button is held and dragged, and stops once released', () => {
     const minimap = renderMinimap()
 
-    fireEvent.pointerDown(minimap, { button: 2, clientX: LEFT, clientY: TOP })
-    fireEvent.pointerMove(minimap, { buttons: 2, clientX: LEFT + MINIMAP_SIZE, clientY: TOP + MINIMAP_SIZE })
+    fireEvent.pointerDown(minimap, { isPrimary: true, button: 2, clientX: LEFT, clientY: TOP })
+    fireEvent.pointerMove(minimap, { isPrimary: true, buttons: 2, clientX: LEFT + MINIMAP_SIZE, clientY: TOP + MINIMAP_SIZE })
 
     const dragged = minimapToWorld(1, 1)
     expect(runStore.getState().moveTarget?.x).toBeCloseTo(dragged.x)
     expect(runStore.getState().moveTarget?.z).toBeCloseTo(dragged.z)
 
     fireEvent.pointerUp(minimap, { button: 2 })
-    fireEvent.pointerMove(minimap, { buttons: 0, clientX: LEFT, clientY: TOP })
+    fireEvent.pointerMove(minimap, { isPrimary: true, buttons: 0, clientX: LEFT, clientY: TOP })
 
     expect(runStore.getState().moveTarget?.x).toBeCloseTo(dragged.x)
+  })
+
+  it('sets the Hero\'s move target to the world position under a tap', () => {
+    const minimap = renderMinimap()
+
+    fireEvent.pointerDown(minimap, { isPrimary: true, pointerType: 'touch', button: 0, clientX: LEFT + MINIMAP_SIZE * 0.25, clientY: TOP + MINIMAP_SIZE * 0.5 })
+
+    const expected = minimapToWorld(0.25, 0.5)
+    expect(runStore.getState().moveTarget?.x).toBeCloseTo(expected.x)
+    expect(runStore.getState().moveTarget?.z).toBeCloseTo(expected.z)
+  })
+
+  it('ignores a second finger landing on the minimap', () => {
+    const minimap = renderMinimap()
+
+    fireEvent.pointerDown(minimap, { pointerType: 'touch', button: 0, isPrimary: false, clientX: LEFT, clientY: TOP })
+
+    expect(runStore.getState().moveTarget).toBeNull()
   })
 
   it('ignores the middle button', () => {
     const minimap = renderMinimap()
 
-    fireEvent.pointerDown(minimap, { button: 1, clientX: LEFT, clientY: TOP })
+    fireEvent.pointerDown(minimap, { isPrimary: true, button: 1, clientX: LEFT, clientY: TOP })
 
     expect(runStore.getState().moveTarget).toBeNull()
   })

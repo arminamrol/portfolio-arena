@@ -1,5 +1,6 @@
 import { useRef, type PointerEvent } from 'react'
-import { MINIMAP_MARGIN, MINIMAP_SIZE, minimapToWorld } from '../minimap/minimapCamera'
+import { useDisplayProfile } from '../display/displayProfile'
+import { minimapPlacement, minimapToWorld } from '../minimap/minimapCamera'
 import { runStore } from '../run/runStore'
 import './Minimap.css'
 
@@ -15,6 +16,7 @@ export function Minimap() {
   // True between a press on the minimap and its release, so dragging keeps
   // steering the Hero.
   const steering = useRef(false)
+  const { size, margin, corner } = minimapPlacement(useDisplayProfile())
 
   function moveHeroTo(event: PointerEvent<HTMLDivElement>) {
     // From pixels on the page to 0..1 across the minimap, then to the world.
@@ -25,8 +27,11 @@ export function Minimap() {
   }
 
   function handlePointerDown(event: PointerEvent<HTMLDivElement>) {
-    // Left or right click; the middle button is left to the browser.
+    // Left or right click; the middle button is left to the browser. A tap
+    // arrives as button 0, so it steers like a left click.
     if (event.button !== LEFT_BUTTON && event.button !== RIGHT_BUTTON) return
+    // Only the first finger steers, as on the ground (see moveGesture.ts).
+    if (!event.isPrimary) return
     steering.current = true
     // Keep receiving moves (and the release) even if the drag leaves the
     // frame; minimapToWorld clamps those to the map's edge.
@@ -35,7 +40,7 @@ export function Minimap() {
   }
 
   function handlePointerMove(event: PointerEvent<HTMLDivElement>) {
-    if (steering.current) moveHeroTo(event)
+    if (steering.current && event.isPrimary) moveHeroTo(event)
   }
 
   function stopSteering() {
@@ -48,8 +53,8 @@ export function Minimap() {
       // A pointer-only shortcut: keyboard users steer in the main view, so
       // it is labelled for screen readers but not focusable.
       role="img"
-      aria-label="Minimap: click to move the Hero there"
-      style={{ width: MINIMAP_SIZE, height: MINIMAP_SIZE, right: MINIMAP_MARGIN, bottom: MINIMAP_MARGIN }}
+      aria-label="Minimap: click or tap to move the Hero there"
+      style={{ width: size, height: size, right: margin, [corner]: margin }}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={stopSteering}

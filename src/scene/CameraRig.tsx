@@ -1,11 +1,9 @@
 import { useFrame, useThree } from '@react-three/fiber'
 import { useEffect, useLayoutEffect } from 'react'
-import { MathUtils } from 'three'
+import { useDisplayProfile } from '../display/displayProfile'
 import { runStore } from '../run/runStore'
-import { CAMERA_OFFSET, zoomAfterWheel } from './isometricCamera'
+import { CAMERA_OFFSET, followStep, zoomAfterWheel } from './isometricCamera'
 
-// How quickly the camera catches up with the Hero (higher = tighter follow).
-const FOLLOW_SHARPNESS = 5
 const [offsetX, , offsetZ] = CAMERA_OFFSET
 // Wheel deltas come in pixels, or in lines (Firefox); one line ≈ 16 px.
 const PIXELS_PER_LINE = 16
@@ -15,6 +13,7 @@ const PIXELS_PER_LINE = 16
 export function CameraRig() {
   const camera = useThree((state) => state.camera)
   const canvas = useThree((state) => state.gl.domElement)
+  const { reducedMotion } = useDisplayProfile()
 
   // Start already framing the Hero at the Base instead of gliding in from
   // the origin, where the camera was first aimed.
@@ -30,9 +29,8 @@ export function CameraRig() {
     // lookAt again: we only translate it. Moving the camera and the point it
     // looks at by the same amount keeps the isometric angle fixed, so
     // "follow" is just "keep the same offset from the Hero".
-    // Damping makes it fast when far behind, slowing as it closes in.
-    camera.position.x = MathUtils.damp(camera.position.x, heroPosition.x + offsetX, FOLLOW_SHARPNESS, delta)
-    camera.position.z = MathUtils.damp(camera.position.z, heroPosition.z + offsetZ, FOLLOW_SHARPNESS, delta)
+    camera.position.x = followStep(camera.position.x, heroPosition.x + offsetX, delta, reducedMotion)
+    camera.position.z = followStep(camera.position.z, heroPosition.z + offsetZ, delta, reducedMotion)
   })
 
   useEffect(() => {

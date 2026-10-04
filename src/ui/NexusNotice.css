@@ -31,6 +31,8 @@
 .victory {
   position: fixed;
   inset: 0;
+  /* Over the panels (z-index 1), coming after them in the DOM. */
+  z-index: 1;
   display: grid;
   place-items: center;
   padding: 16px;
@@ -130,6 +132,24 @@
 .victory__dismiss:focus-visible {
   outline: 2px solid #f2e394;
   outline-offset: 2px;
+}
+
+/* Breakpoints match display/displayProfile.ts: keep them in step. */
+/* A phone held upright: no room between the HUD and the minimap, so the
+   note goes below them, full width. */
+@media (max-width: 640px) {
+  .nexus-notice {
+    top: 140px;
+    left: 16px;
+    right: 16px;
+    transform: none;
+    text-align: center;
+  }
+
+  /* Clear of the Skip control, which stays on top in the bottom left. */
+  .victory {
+    padding-bottom: 60px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

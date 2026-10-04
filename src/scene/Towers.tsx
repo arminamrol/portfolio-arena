@@ -2,6 +2,7 @@ import { useFrame } from '@react-three/fiber'
 import { useEffect, useRef, useState } from 'react'
 import { Mesh, MeshStandardMaterial, RingGeometry, type Group, type MeshBasicMaterial, type Object3D } from 'three'
 import { getModel, modelInstance } from '../assets/loadModels'
+import { useDisplayProfile } from '../display/displayProfile'
 import type { LaneLayout, TowerLayout } from '../map/mapLayout'
 import { TOWER_RANGE, useRevealed, useRunStore } from '../run/runStore'
 
@@ -72,6 +73,7 @@ function Tower({ tower }: { tower: TowerLayout }) {
   // The tween's clock: 0 at the moment of Capture, 1 when the effect is
   // over. Starts finished, so nothing plays until a Capture.
   const progress = useRef(1)
+  const { reducedMotion } = useDisplayProfile()
   const [model] = useState(() => modelInstance('tower', { height: TOWER_HEIGHT }))
 
   useEffect(() => {
@@ -99,13 +101,17 @@ function Tower({ tower }: { tower: TowerLayout }) {
     const eased = 1 - (1 - t) ** 3
 
     // A shockwave: the ring grows out of the Tower's foot and fades away.
+    // Under reduced motion it appears at full size and only fades.
     ring.current.visible = t < 1
-    ring.current.scale.setScalar(0.2 + eased * 1.3)
+    ring.current.scale.setScalar(reducedMotion ? 1.5 : 0.2 + eased * 1.3)
     ringMaterial.current.opacity = 1 - eased
 
     // A pop: sin over 0..π rises then falls back to 0, so the Tower swells
-    // and returns exactly to its normal size when the tween ends.
-    body.current.scale.setScalar(1 + Math.sin(t * Math.PI) * CAPTURE_POP)
+    // and returns exactly to its normal size when the tween ends. Under
+    // reduced motion the Tower keeps its size; the ring's fade and the gold
+    // roof still mark the Capture.
+    const pop = reducedMotion ? 0 : CAPTURE_POP
+    body.current.scale.setScalar(1 + Math.sin(t * Math.PI) * pop)
   })
 
   return (

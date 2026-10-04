@@ -1,5 +1,6 @@
 import { useFrame } from '@react-three/fiber'
 import { useEffect, useState } from 'react'
+import { useDisplayProfile } from '../display/displayProfile'
 import { runStore } from '../run/runStore'
 import { AbilityEffectPlayer } from './abilityEffectPlayer'
 
@@ -9,6 +10,13 @@ export function AbilityEffects() {
   // disposed imperatively, outside JSX, because they come and go faster
   // than React should be re-rendering.
   const [player] = useState(() => new AbilityEffectPlayer())
+  const { smallScreen, reducedMotion } = useDisplayProfile()
+
+  // Fewer parts on a phone; a still glow under reduced motion. Applies from
+  // the next cast.
+  useEffect(() => {
+    player.style = { detail: smallScreen ? 'simple' : 'full', calm: reducedMotion }
+  }, [player, smallScreen, reducedMotion])
 
   // A plain store subscription, not a selector hook: a cast should start an
   // effect, not re-render this component.

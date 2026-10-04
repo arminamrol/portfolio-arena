@@ -1,9 +1,13 @@
 .info-panel {
   position: fixed;
+  /* Over the passing notes (the Ability tooltip, the Nexus note), which
+     on a small screen have nowhere else to go: the panel the visitor is
+     reading wins. */
+  z-index: 1;
   top: 16px;
   right: 16px;
-  /* Stops above the minimap (MINIMAP_SIZE 200px between two 16px margins)
-     so it neither hides it nor sits under its click area. */
+  /* Stops above the minimap (200px between two 16px margins, see
+     minimapPlacement) so it neither hides it nor sits under its click area. */
   bottom: 232px;
   width: min(360px, calc(100vw - 32px));
   box-sizing: border-box;
@@ -83,5 +87,28 @@
 @media (prefers-reduced-motion: reduce) {
   .info-panel {
     transition: none;
+  }
+}
+
+/* Breakpoints match display/displayProfile.ts: keep them in step. */
+/* A phone turned sideways: the minimap shrinks to 112px, so the panel can
+   reach further down. */
+@media (max-height: 500px) {
+  .info-panel {
+    bottom: 144px;
+  }
+}
+
+/* A phone held upright: full width, below the HUD and the minimap (both in
+   the top 128px) and above the Ability bar (bottom 124px). It grows with its
+   content and scrolls past that. */
+@media (max-width: 640px) {
+  .info-panel {
+    top: 140px;
+    left: 16px;
+    bottom: auto;
+    width: auto;
+    max-height: calc(100vh - 280px);
+    max-height: calc(100dvh - 280px);
   }
 }

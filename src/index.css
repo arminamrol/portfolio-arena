@@ -13,3 +13,9 @@ body,
   width: 100%;
   height: 100%;
 }
+
+/* A tap on the map moves the Hero, so on touch screens the canvas must not
+   also scroll, pinch-zoom or double-tap-zoom the page. */
+.game canvas {
+  touch-action: none;
+}
