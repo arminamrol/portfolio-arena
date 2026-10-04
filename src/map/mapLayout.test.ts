@@ -17,59 +17,59 @@ describe('mapLayout', () => {
   })
 
   it('places one Tower per Resume Entry, spaced evenly along a straight Lane', () => {
-    // Mid runs straight from the Base (14, 14) to the Nexus (-14, -14). Three
+    // Mid runs straight from the Base (24, 24) to the Nexus (-24, -24). Three
     // Towers split it into four equal gaps.
     const mid = laneByLabel(mapLayout(withLaneSizes({ top: 2, mid: 3, bottom: 2 })), 'Projects')
 
     expect(mid.towers.map((tower) => tower.entryId)).toEqual(['mid-0', 'mid-1', 'mid-2'])
     expectPositions(mid.towers, [
-      { x: 7, z: 7 },
+      { x: 12, z: 12 },
       { x: 0, z: 0 },
-      { x: -7, z: -7 },
+      { x: -12, z: -12 },
     ])
   })
 
   it('measures Tower spacing along the path, around corners', () => {
-    // Top runs (14, 14) → (-14, 14) → (-14, -14): 56 units. Two Towers split
-    // it into three gaps of 56 / 3 ≈ 18.67. The second Tower, 37.33 along,
-    // is 9.33 past the corner.
+    // Top runs (24, 24) → (-24, 24) → (-24, -24): 96 units. Two Towers split
+    // it into three gaps of 32. The second Tower, 64 along, is 16 past the
+    // corner.
     const top = laneByLabel(mapLayout(withLaneSizes({ top: 2, mid: 3, bottom: 2 })), 'Education')
 
     expectPositions(top.towers, [
-      { x: -4.667, z: 14 },
-      { x: -14, z: 4.667 },
+      { x: -8, z: 24 },
+      { x: -24, z: 8 },
     ])
   })
 
   it('re-spaces a Lane when a Resume Entry is added to it', () => {
-    // Three Towers split the 56-unit top Lane into four gaps of 14.
+    // Three Towers split the 96-unit top Lane into four gaps of 24.
     const top = laneByLabel(mapLayout(withLaneSizes({ top: 3, mid: 3, bottom: 2 })), 'Education')
 
     expect(top.towers.map((tower) => tower.entryId)).toEqual(['top-0', 'top-1', 'top-2'])
     expectPositions(top.towers, [
-      { x: 0, z: 14 },
-      { x: -14, z: 14 },
-      { x: -14, z: 0 },
+      { x: 0, z: 24 },
+      { x: -24, z: 24 },
+      { x: -24, z: 0 },
     ])
   })
 
   it('places a lone Tower halfway along its Lane', () => {
-    // Half of the 56-unit top Lane is 28 units: exactly the corner.
+    // Half of the 96-unit top Lane is 48 units: exactly the corner.
     const top = laneByLabel(mapLayout(withLaneSizes({ top: 1, mid: 3, bottom: 4 })), 'Education')
 
-    expectPositions(top.towers, [{ x: -14, z: 14 }])
+    expectPositions(top.towers, [{ x: -24, z: 24 }])
   })
 
   it('spaces four Towers evenly along a Lane', () => {
-    // Bottom runs (14, 14) → (14, -14) → (-14, -14): 56 units. Four Towers
-    // split it into five gaps of 11.2; the last two are past the corner.
+    // Bottom runs (24, 24) → (24, -24) → (-24, -24): 96 units. Four Towers
+    // split it into five gaps of 19.2; the last two are past the corner.
     const bottom = laneByLabel(mapLayout(withLaneSizes({ top: 1, mid: 3, bottom: 4 })), 'Experience')
 
     expectPositions(bottom.towers, [
-      { x: 14, z: 2.8 },
-      { x: 14, z: -8.4 },
-      { x: 8.4, z: -14 },
-      { x: -2.8, z: -14 },
+      { x: 24, z: 4.8 },
+      { x: 24, z: -14.4 },
+      { x: 14.4, z: -24 },
+      { x: -4.8, z: -24 },
     ])
   })
 

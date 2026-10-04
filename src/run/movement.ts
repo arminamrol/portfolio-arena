@@ -1,3 +1,7 @@
+// World units per second the Hero walks: Base to Nexus along the mid Lane
+// in about eight and a half seconds.
+export const HERO_SPEED = 8
+
 // A point on the ground. The ground is the world XZ plane (Three.js is Y-up),
 // so a ground position needs only x and z; height is the scene's concern.
 export type GroundPosition = { x: number; z: number }

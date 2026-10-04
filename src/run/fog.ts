@@ -4,9 +4,11 @@ import type { GroundPosition } from './movement'
 // Fog is a coarse grid of square cells laid over the ground: FOG_CELLS
 // columns along world x, FOG_CELLS rows along world z, each cell either
 // revealed or not. Half a world unit per cell is fine enough that the
-// edge looks round once the scene smooths it.
-export const FOG_CELLS = 80
-const CELL_SIZE = GROUND_SIZE / FOG_CELLS
+// edge looks round once the scene smooths it, and coarse enough to stay
+// cheap on a phone, whatever the size of the ground.
+const CELLS_PER_UNIT = 2
+export const FOG_CELLS = GROUND_SIZE * CELLS_PER_UNIT
+const CELL_SIZE = 1 / CELLS_PER_UNIT
 const HALF = GROUND_SIZE / 2
 
 // World units around the Hero that are revealed. Larger than the Tower
@@ -16,7 +18,7 @@ export const FOG_REVEAL_RADIUS = 6
 // One byte per cell, row by row: cell (column, row) is at
 // `row * FOG_CELLS + column`, row 0 at the -z edge, column 0 at the -x edge.
 // 1 = revealed, 0 = in Fog. A flat typed array rather than a Set of cells:
-// it is small (6.4 kB), quick to copy, and maps one-to-one onto the
+// it is small (a byte per cell), quick to copy, and maps one-to-one onto the
 // texture the scene draws Fog with.
 export type Fog = Readonly<Uint8Array>
 

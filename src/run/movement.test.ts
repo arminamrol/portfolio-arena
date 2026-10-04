@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { stepToward } from './movement'
+import { distance, mapLayout } from '../map/mapLayout'
+import { resumeData } from '../resume/resumeData'
+import { HERO_SPEED, stepToward } from './movement'
 
 describe('stepToward', () => {
   it('moves exactly the given distance along the line to the target', () => {
@@ -21,5 +23,15 @@ describe('stepToward', () => {
 
     expect(twoFrames.x).toBeCloseTo(oneFrame.x)
     expect(twoFrames.z).toBeCloseTo(oneFrame.z)
+  })
+})
+
+describe('HERO_SPEED', () => {
+  it('walks the Hero from the Base to the Nexus along the mid Lane in 8 to 9 seconds', () => {
+    const { base, nexus } = mapLayout(resumeData)
+    const seconds = distance(base, nexus) / HERO_SPEED
+
+    expect(seconds).toBeGreaterThanOrEqual(8)
+    expect(seconds).toBeLessThanOrEqual(9)
   })
 })

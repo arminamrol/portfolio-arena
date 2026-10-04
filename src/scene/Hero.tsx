@@ -2,11 +2,9 @@ import { useFrame } from '@react-three/fiber'
 import { useEffect, useRef, useState } from 'react'
 import { AnimationClip, AnimationMixer, MathUtils, type AnimationAction, type Group } from 'three'
 import { fitToSize, getModel } from '../assets/loadModels'
-import { stepToward } from '../run/movement'
+import { HERO_SPEED, stepToward } from '../run/movement'
 import { runStore, selectHeroAnimation, type HeroAnimation } from '../run/runStore'
 
-// World units per second.
-const HERO_SPEED = 6
 // How quickly the Hero turns to face its target (higher = snappier).
 const TURN_SHARPNESS = 12
 // World units from the Hero's feet to the top of its head.

@@ -97,7 +97,7 @@ export function Fog() {
     if (fog === uploaded.current) return
     for (let i = 0; i < fog.length; i++) texels[i] = fog[i] * 255
     // Tells Three.js to send the new texels to the GPU before the next draw.
-    // Re-uploading 6.4 kB is cheap, and happens only while new ground is
+    // Re-uploading a byte per cell is cheap, and happens only while new ground is
     // being revealed.
     fogTexture.needsUpdate = true
     uploaded.current = fog

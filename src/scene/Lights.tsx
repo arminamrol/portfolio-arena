@@ -6,6 +6,14 @@ import { GROUND_SIZE } from '../map/mapLayout'
 // reach the map's corners (half the diagonal), not just its sides.
 const SHADOW_EXTENT = (GROUND_SIZE / 2) * Math.SQRT2
 
+// The sun's direction from the origin: up and toward +x+z. Only the
+// direction lights the scene, but the shadow camera sits at the sun's
+// position, and anything nearer to it than its near plane (or behind it)
+// casts and receives no shadow. Placed a ground's width out along that
+// direction, the sun is beyond every corner of the ground.
+const SUN_DIRECTION = [8, 15, 5]
+const SUN_POSITION = SUN_DIRECTION.map((v) => (v / Math.hypot(...SUN_DIRECTION)) * GROUND_SIZE) as [number, number, number]
+
 // Shadow map resolution: 2048² on a desktop, a quarter of the texels on a
 // phone, whose GPU pays for every one of them each frame.
 const SHADOW_MAP_SIZE = 2048
@@ -38,7 +46,7 @@ export function Lights() {
           map is made at the new size. */}
       <directionalLight
         key={shadowMapSize}
-        position={[8, 15, 5]}
+        position={SUN_POSITION}
         intensity={2}
         castShadow
         shadow-mapSize={[shadowMapSize, shadowMapSize]}

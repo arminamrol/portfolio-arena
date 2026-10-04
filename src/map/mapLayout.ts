@@ -26,13 +26,14 @@ export type MapLayout = {
 }
 
 // The ground is a square this many world units on each side, centred on the
-// origin. Everything on the map stands inside it.
-export const GROUND_SIZE = 40
+// origin. Everything on the map stands inside it. At the default zoom the
+// screen shows about half of it, so there is somewhere to explore.
+export const GROUND_SIZE = 68
 
 // Distance from the map centre to the Base and Nexus along each axis. The
 // ground is a square centred on the origin; seen through the isometric
 // camera it is a diamond, with +x+z at the bottom corner and -x-z at the top.
-const CORNER = 14
+const CORNER = 24
 
 const BASE: GroundPosition = { x: CORNER, z: CORNER }
 const NEXUS: GroundPosition = { x: -CORNER, z: -CORNER }
