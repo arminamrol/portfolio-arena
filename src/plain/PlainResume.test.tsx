@@ -61,6 +61,17 @@ describe('PlainResume', () => {
     }
   })
 
+  it('lists the Inventory, every Tool under its group, with no levels', () => {
+    render(<PlainResume />)
+
+    const section = screen.getByRole('region', { name: 'Inventory' })
+    for (const group of resumeData.inventory) {
+      const list = within(section).getByRole('list', { name: group.label })
+      expect(within(list).getAllByRole('listitem').map((item) => item.textContent)).toEqual(group.tools)
+    }
+    expect(within(section).queryByRole('meter')).toBeNull()
+  })
+
   it('lists every Contact Link with a working URL', () => {
     render(<PlainResume />)
 

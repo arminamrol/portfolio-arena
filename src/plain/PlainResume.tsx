@@ -62,6 +62,29 @@ export function PlainResume({ onPlay, takeFocus = false }: PlainResumeProps) {
           </div>
         </section>
 
+        <section className="plain-resume__section" aria-labelledby="plain-resume-inventory">
+          <h2 id="plain-resume-inventory" className="plain-resume__section-title">
+            Inventory
+          </h2>
+          <div className="plain-resume__inventory">
+            {resumeData.inventory.map((group, index) => {
+              const labelId = `plain-resume-inventory-${index}`
+              return (
+                <div key={group.label}>
+                  <h3 id={labelId} className="plain-resume__inventory-group">
+                    {group.label}
+                  </h3>
+                  <ul className="plain-resume__tools" aria-labelledby={labelId}>
+                    {group.tools.map((tool) => (
+                      <li key={tool}>{tool}</li>
+                    ))}
+                  </ul>
+                </div>
+              )
+            })}
+          </div>
+        </section>
+
         <section className="plain-resume__section" aria-labelledby="plain-resume-contact">
           <h2 id="plain-resume-contact" className="plain-resume__section-title">
             Contact

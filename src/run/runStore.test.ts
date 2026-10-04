@@ -301,6 +301,33 @@ describe('Run store', () => {
     })
   })
 
+  describe('Inventory', () => {
+    it('starts with the Inventory closed', () => {
+      const run = createRunStore()
+
+      expect(run.getState().inventoryOpen).toBe(false)
+    })
+
+    it('toggles and closes the Inventory without moving the Hero or casting an Ability', () => {
+      const run = createRunStore()
+      const before = run.getState()
+
+      run.getState().toggleInventory()
+      expect(run.getState().inventoryOpen).toBe(true)
+
+      run.getState().toggleInventory()
+      expect(run.getState().inventoryOpen).toBe(false)
+
+      run.getState().toggleInventory()
+      run.getState().closeInventory()
+      expect(run.getState().inventoryOpen).toBe(false)
+
+      expect(run.getState().heroPosition).toEqual(before.heroPosition)
+      expect(run.getState().moveTarget).toBeNull()
+      expect(run.getState().abilityCast).toBeNull()
+    })
+  })
+
   describe('Shop', () => {
     it('starts with the Shop closed, though the Hero spawns near it', () => {
       const run = createRunStore()
@@ -423,6 +450,29 @@ describe('Run store', () => {
       run.getState().heroMovedTo(nexus)
 
       expect(run.getState().shopOpen).toBe(false)
+    })
+
+    it('closes the Inventory when Victory is shown', () => {
+      const run = createRunStore()
+      captureTowers(run, 3)
+      run.getState().toggleInventory()
+
+      run.getState().heroMovedTo(nexus)
+
+      expect(run.getState().inventoryOpen).toBe(false)
+    })
+
+    it('keeps the Inventory closed while the Victory screen is up', () => {
+      const run = createRunStore()
+      captureTowers(run, 3)
+      run.getState().heroMovedTo(nexus)
+
+      run.getState().toggleInventory()
+      expect(run.getState().inventoryOpen).toBe(false)
+
+      run.getState().dismissVictoryScreen()
+      run.getState().toggleInventory()
+      expect(run.getState().inventoryOpen).toBe(true)
     })
 
     it('stops a Hero passing through the Nexus when Victory is shown', () => {

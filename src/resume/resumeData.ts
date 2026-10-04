@@ -1,7 +1,7 @@
 import type { ResumeData } from './types'
 
 // All resume content. Edit this file to change the resume; the map, Towers,
-// Abilities and Shop are generated from it.
+// Abilities, Inventory and Shop are generated from it.
 export const resumeData = {
   hero: {
     name: 'Armin Amrollahian',
@@ -130,6 +130,21 @@ export const resumeData = {
       description: 'Nest.js backends on Postgres and MongoDB, shipped with Docker and Nginx.',
     },
   },
+
+  inventory: [
+    {
+      label: 'Frontend',
+      tools: ['TypeScript', 'JavaScript', 'React', 'React Native', 'Next.js', 'Redux', 'Zustand', 'Tailwind', 'Framer Motion'],
+    },
+    {
+      label: 'Backend & Data',
+      tools: ['Node.js', 'Nest.js', 'SQL databases', 'MongoDB', 'Redis', 'Elasticsearch', 'RabbitMQ', 'S3'],
+    },
+    {
+      label: 'DevOps & Tooling',
+      tools: ['Docker', 'Nginx', 'Grafana', 'Jest', 'Webpack', 'Vite', 'Clean Architecture'],
+    },
+  ],
 
   contactLinks: [
     { label: 'GitHub', url: 'https://github.com/arminamrol/' },

@@ -5,6 +5,7 @@ import { Scene } from './scene/Scene'
 import { AbilityBar } from './ui/AbilityBar'
 import { Hud } from './ui/Hud'
 import { InfoPanel } from './ui/InfoPanel'
+import { InventoryPanel } from './ui/InventoryPanel'
 import { LoadingScreen } from './ui/LoadingScreen'
 import { Minimap } from './ui/Minimap'
 import { NexusNotice } from './ui/NexusNotice'
@@ -39,6 +40,7 @@ export function Game({ onSkip, takeFocus }: GameProps) {
           <Hud />
           <InfoPanel />
           <ShopPanel />
+          <InventoryPanel />
           <AbilityBar />
           <Minimap />
           <NexusNotice />

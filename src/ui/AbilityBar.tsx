@@ -3,6 +3,7 @@ import { resumeData } from '../resume/resumeData'
 import { ABILITY_KEYS, MAX_SKILL_LEVEL, type AbilityKey } from '../resume/types'
 import { runStore, useRunStore } from '../run/runStore'
 import './AbilityBar.css'
+import { INVENTORY_BUTTON_ID, INVENTORY_PANEL_ID } from './InventoryPanel'
 
 // How long a Skill's tooltip stays up after the last cast.
 export const TOOLTIP_SECONDS = 4
@@ -12,10 +13,12 @@ export const TOOLTIP_SECONDS = 4
 const abilityByCode = new Map<string, AbilityKey>(ABILITY_KEYS.map((key) => [`Key${key}`, key]))
 
 // The four Ability keys, bottom centre, with the cast Skill's tooltip above
-// them. Plain DOM over the canvas; the effect itself is drawn by the scene's
-// AbilityEffects, which hears about the cast through the Run store.
+// them and the Inventory button beside them. Plain DOM over the canvas; the
+// effect itself is drawn by the scene's AbilityEffects, which hears about the
+// cast through the Run store.
 export function AbilityBar() {
   const cast = useRunStore((state) => state.abilityCast)
+  const inventoryOpen = useRunStore((state) => state.inventoryOpen)
   // The cast whose tooltip has timed out, so the tooltip hides without
   // touching the store.
   const [expiredId, setExpiredId] = useState<number | null>(null)
@@ -81,6 +84,22 @@ export function AbilityBar() {
             </button>
           )
         })}
+        {/* Not an Ability: it opens the Inventory panel and casts nothing. */}
+        <button
+          type="button"
+          id={INVENTORY_BUTTON_ID}
+          className="ability-key ability-bar__inventory"
+          aria-expanded={inventoryOpen}
+          aria-controls={INVENTORY_PANEL_ID}
+          onClick={() => runStore.getState().toggleInventory()}
+        >
+          <svg className="ability-bar__inventory-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M9 7V5a3 3 0 0 1 6 0v2" />
+            <rect x="4" y="7" width="16" height="14" rx="3" />
+            <path d="M4 13h16" />
+          </svg>
+          <span className="ability-key__skill">Inventory</span>
+        </button>
       </div>
     </div>
   )

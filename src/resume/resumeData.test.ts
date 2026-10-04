@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { resumeData } from './resumeData'
-import type { Lane, ResumeData, ResumeEntry, Skill } from './types'
+import type { Lane, ResumeData, ResumeEntry, Skill, ToolGroup } from './types'
 
 const entry: ResumeEntry = {
   id: 'e',
@@ -46,6 +46,15 @@ describe('Resume Data types', () => {
     void ({ id: 'e', title: 'Title', subtitle: 'Subtitle', description: 'Description', links: [] } satisfies ResumeEntry)
   })
 
+  it('reject a Tool group without a label or Tools, or with a proficiency level', () => {
+    // @ts-expect-error label is missing
+    void ({ tools: ['React'] } satisfies ToolGroup)
+    // @ts-expect-error tools is missing
+    void ({ label: 'Frontend' } satisfies ToolGroup)
+    // @ts-expect-error a Tool is a name, with no level
+    void ({ label: 'Frontend', tools: [{ name: 'React', level: 5 }] } satisfies ToolGroup)
+  })
+
   it('reject Resume Data missing a Skill', () => {
     const { R: _, ...threeSkills } = resumeData.skills
     // @ts-expect-error the R Skill is missing
@@ -58,6 +67,23 @@ describe('Resume Data', () => {
     const ids = Object.values(resumeData.lanes).flatMap((lane) => lane.entries.map((e) => e.id))
 
     expect(new Set(ids).size).toBe(ids.length)
+  })
+
+  it('lists the owner\'s Inventory, grouped by area', () => {
+    expect(resumeData.inventory).toEqual([
+      {
+        label: 'Frontend',
+        tools: ['TypeScript', 'JavaScript', 'React', 'React Native', 'Next.js', 'Redux', 'Zustand', 'Tailwind', 'Framer Motion'],
+      },
+      {
+        label: 'Backend & Data',
+        tools: ['Node.js', 'Nest.js', 'SQL databases', 'MongoDB', 'Redis', 'Elasticsearch', 'RabbitMQ', 'S3'],
+      },
+      {
+        label: 'DevOps & Tooling',
+        tools: ['Docker', 'Nginx', 'Grafana', 'Jest', 'Webpack', 'Vite', 'Clean Architecture'],
+      },
+    ])
   })
 
   it('lists the owner\'s Contact Links, with the Resume PDF hosted as a GitHub Release asset', () => {

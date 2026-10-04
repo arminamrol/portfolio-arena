@@ -49,6 +49,15 @@ export type Skill = {
 export const ABILITY_KEYS = ['Q', 'W', 'E', 'R'] as const
 export type AbilityKey = (typeof ABILITY_KEYS)[number]
 
+// One technology in the Inventory: just its name, with no proficiency level.
+export type Tool = string
+
+// One area of the Inventory (Frontend, Backend & Data, ...) and its Tools.
+export type ToolGroup = {
+  label: string
+  tools: Tool[]
+}
+
 // GitHub, LinkedIn, email, resume PDF. Shown as Shop Items.
 export type ContactLink = Link
 
@@ -60,5 +69,8 @@ export type ResumeData = {
   }
   lanes: Record<LaneKey, Lane>
   skills: Record<AbilityKey, Skill>
+  // The owner's full set of Tools, grouped by area, in display order. Shown
+  // in the Inventory panel and the Plain Resume.
+  inventory: ToolGroup[]
   contactLinks: ContactLink[]
 }

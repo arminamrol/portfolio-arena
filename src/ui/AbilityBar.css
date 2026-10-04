@@ -93,6 +93,7 @@
   align-items: center;
   justify-content: center;
   gap: 2px;
+  box-sizing: border-box;
   width: 64px;
   height: 56px;
   border: 1px solid rgb(255 255 255 / 0.12);
@@ -137,6 +138,36 @@
   white-space: nowrap;
 }
 
+/* Set apart from the four Ability keys by a thin rule, since it is not one. */
+.ability-bar__inventory {
+  position: relative;
+  margin-left: 8px;
+}
+
+.ability-bar__inventory::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: -10px;
+  width: 1px;
+  background: rgb(255 255 255 / 0.15);
+}
+
+.ability-bar__inventory[aria-expanded='true'] {
+  border-color: #f2e394;
+}
+
+.ability-bar__inventory-icon {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .ability-tooltip,
   .ability-key {
@@ -145,16 +176,28 @@
 }
 
 /* Phones (see SMALL_SCREEN_QUERY in display/displayProfile.ts): smaller
-   keys, still well above the ~44px a fingertip needs. */
+   keys, still above the ~44px a fingertip needs. The five keys come to
+   258px, so on a 568px-wide phone held sideways the bar clears both the
+   Skip control on its left and the minimap on its right. */
 @media (max-width: 640px), (max-height: 500px) {
   .ability-bar__keys {
-    gap: 6px;
-    padding: 6px;
+    gap: 4px;
+    padding: 4px;
   }
 
   .ability-key {
-    width: 56px;
+    width: 46px;
     height: 48px;
+  }
+
+  .ability-bar__inventory {
+    margin-left: 4px;
+  }
+
+  .ability-bar__inventory::before {
+    top: 6px;
+    bottom: 6px;
+    left: -5px;
   }
 }
 

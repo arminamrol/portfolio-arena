@@ -37,6 +37,8 @@ export type RunState = {
   openInfoPanel: string | null
   // Whether the Shop panel is open.
   shopOpen: boolean
+  // Whether the Inventory panel is open.
+  inventoryOpen: boolean
   // What the Nexus is showing, or null.
   nexusNotice: NexusNotice | null
   // Whether Victory was reached this Run. The Victory screen shows only
@@ -54,6 +56,8 @@ export type RunState = {
   openShop: () => void
   closeShop: () => void
   toggleShop: () => void
+  toggleInventory: () => void
+  closeInventory: () => void
   dismissVictoryScreen: () => void
   castAbility: (key: AbilityKey) => void
 }
@@ -77,6 +81,7 @@ export function createRunStore() {
     xp: 0,
     openInfoPanel: null,
     shopOpen: false,
+    inventoryOpen: false,
     nexusNotice: null,
     victoryReached: false,
     abilityCast: null,
@@ -130,6 +135,7 @@ export function createRunStore() {
           update.victoryReached = true
           update.moveTarget = null
           update.shopOpen = false
+          update.inventoryOpen = false
           update.openInfoPanel = null
         }
       } else if (!nowAtNexus && wasAtNexus && state.nexusNotice === 'capturesRemaining') {
@@ -146,6 +152,13 @@ export function createRunStore() {
     closeShop: () => set({ shopOpen: false }),
 
     toggleShop: () => set((state) => ({ shopOpen: !state.shopOpen })),
+
+    // The Victory screen is modal, but Tab can still reach the Inventory
+    // button behind it; it must not open a panel under the screen.
+    toggleInventory: () =>
+      set((state) => (state.nexusNotice === 'victory' ? {} : { inventoryOpen: !state.inventoryOpen })),
+
+    closeInventory: () => set({ inventoryOpen: false }),
 
     dismissVictoryScreen: () => set((state) => (state.nexusNotice === 'victory' ? { nexusNotice: null } : {})),
 
