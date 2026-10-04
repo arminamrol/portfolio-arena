@@ -1,30 +1,57 @@
 import { useFrame } from '@react-three/fiber'
-import { useEffect, useRef } from 'react'
-import { ConeGeometry, CylinderGeometry, MeshStandardMaterial, RingGeometry, type Group, type Mesh, type MeshBasicMaterial } from 'three'
+import { useEffect, useRef, useState } from 'react'
+import { Mesh, MeshStandardMaterial, RingGeometry, type Group, type MeshBasicMaterial, type Object3D } from 'three'
+import { getModel, modelInstance } from '../assets/loadModels'
 import type { LaneLayout, TowerLayout } from '../map/mapLayout'
 import { TOWER_RANGE, useRevealed, useRunStore } from '../run/runStore'
 
-const SHAFT_HEIGHT = 2.6
-const ROOF_HEIGHT = 1.2
+// World units from a Tower's foot to the tip of its roof.
+const TOWER_HEIGHT = 3.8
 // Seconds the Capture effect lasts.
 const CAPTURE_DURATION = 0.8
 // How much bigger the Tower briefly grows at the peak of a Capture.
 const CAPTURE_POP = 0.25
 
-// Shared by every Tower: adding a Resume Entry adds a mesh, not new GPU
-// buffers or shader programs (see Lanes.tsx).
-const shaftGeometry = new CylinderGeometry(0.55, 0.7, SHAFT_HEIGHT, 8)
-const roofGeometry = new ConeGeometry(0.9, ROOF_HEIGHT, 8)
 // A thin ring the size of the Tower's range; the Capture effect scales it.
+// Shared by every Tower: adding a Resume Entry adds a mesh, not new GPU
+// buffers (see Lanes.tsx).
 const rangeRingGeometry = new RingGeometry(TOWER_RANGE - 0.15, TOWER_RANGE, 48)
-const shaftMaterial = new MeshStandardMaterial({ color: '#c9c2b2' })
-const roofMaterial = new MeshStandardMaterial({ color: '#5a7bb5' })
-// Swapping a mesh's material is cheap: both shader programs are compiled
-// once and reused, so a Captured Tower costs nothing extra to draw.
-const capturedRoofMaterial = new MeshStandardMaterial({ color: '#e0b84a', emissive: '#5c4310' })
 
-// Placeholder Towers until the art pass, one per Resume Entry, standing
-// where the map layout put them.
+// The Tower model's material, and a gold-glowing copy of it for Captured
+// Towers. Swapping a mesh's material is cheap: both shader programs are
+// compiled once and reused, so a Captured Tower costs nothing extra to draw.
+// Made on first use, since the model has to have loaded.
+let materials: { normal: MeshStandardMaterial; captured: MeshStandardMaterial } | null = null
+function towerMaterials() {
+  if (!materials) {
+    const normal = standardMaterialOf(getModel('tower').scene)
+    const captured = normal.clone()
+    // emissive is light the surface gives off itself, added on top of the
+    // lit colour: the whole Tower glows warm, even on its shadowed side.
+    captured.emissive.set('#a8781c')
+    captured.emissiveIntensity = 0.45
+    materials = { normal, captured }
+  }
+  return materials
+}
+
+function standardMaterialOf(object: Object3D): MeshStandardMaterial {
+  const found = new Set<MeshStandardMaterial>()
+  object.traverse((child) => {
+    if (child instanceof Mesh && child.material instanceof MeshStandardMaterial) found.add(child.material)
+  })
+  const [material, ...others] = found
+  if (!material || others.length > 0) throw new Error('Expected the Tower model to use exactly one material')
+  return material
+}
+
+function setMaterial(object: Object3D, material: MeshStandardMaterial) {
+  object.traverse((child) => {
+    if (child instanceof Mesh) child.material = material
+  })
+}
+
+// One Tower per Resume Entry, standing where the map layout put them.
 export function Towers({ lanes }: { lanes: LaneLayout[] }) {
   return (
     <>
@@ -45,6 +72,12 @@ function Tower({ tower }: { tower: TowerLayout }) {
   // The tween's clock: 0 at the moment of Capture, 1 when the effect is
   // over. Starts finished, so nothing plays until a Capture.
   const progress = useRef(1)
+  const [model] = useState(() => modelInstance('tower', { height: TOWER_HEIGHT }))
+
+  useEffect(() => {
+    const { normal, captured: glowing } = towerMaterials()
+    setMaterial(model, captured ? glowing : normal)
+  }, [model, captured])
 
   // Play on the change from un-Captured to Captured only, not whenever this
   // component mounts already Captured (hot reload, StrictMode's remount).
@@ -83,15 +116,7 @@ function Tower({ tower }: { tower: TowerLayout }) {
     // hiding the group skips drawing (and shadow-casting) every child.
     <group position={[tower.position.x, 0, tower.position.z]} visible={revealed}>
       <group ref={body}>
-        {/* Cylinders and cones are centred on their origin, so lift each by
-            half its height to stack them. */}
-        <mesh geometry={shaftGeometry} material={shaftMaterial} position={[0, SHAFT_HEIGHT / 2, 0]} castShadow receiveShadow />
-        <mesh
-          geometry={roofGeometry}
-          material={captured ? capturedRoofMaterial : roofMaterial}
-          position={[0, SHAFT_HEIGHT + ROOF_HEIGHT / 2, 0]}
-          castShadow
-        />
+        <primitive object={model} />
       </group>
       {/* Laid flat like the move target marker, just above the Lanes. */}
       <mesh ref={ring} geometry={rangeRingGeometry} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.05, 0]} visible={false}>

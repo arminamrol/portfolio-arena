@@ -1,6 +1,9 @@
 import { GROUND_SIZE } from '../map/mapLayout'
 
-const SHADOW_EXTENT = GROUND_SIZE / 2
+// Half the side of the shadow camera's box. The sun looks at the map from
+// an angle, so the square ground is a skewed shape in its view; the box must
+// reach the map's corners (half the diagonal), not just its sides.
+const SHADOW_EXTENT = (GROUND_SIZE / 2) * Math.SQRT2
 
 export function Lights() {
   return (
@@ -11,12 +14,25 @@ export function Lights() {
       {/* DirectionalLight is a sun: parallel rays shining from its position
           toward its target (the origin by default). To cast shadows it renders
           a depth map from its own orthographic shadow camera, whose box must
-          cover the area where shadows should appear. */}
+          cover the area where shadows should appear.
+          A shadow map is a depth texture: from the light's point of view,
+          how far away the nearest surface is at each texel. When drawing
+          the scene, each pixel checks whether something sits between it
+          and the light at that spot; if so, it is in shadow. Only meshes
+          with castShadow are drawn into the map, and only meshes with
+          receiveShadow do the check. mapSize is the texture's resolution:
+          2048² spread over the whole map gives the small models crisp
+          enough shadows for one extra depth pass per frame. */}
       <directionalLight
         position={[8, 15, 5]}
         intensity={2}
         castShadow
-        shadow-mapSize={[1024, 1024]}
+        shadow-mapSize={[2048, 2048]}
+        // A surface compared against its own stored depth can shadow itself
+        // in stripes ("shadow acne"), from the map's limited precision.
+        // normalBias pushes the lookup out along the surface normal, past
+        // that rounding, without detaching shadows from their casters.
+        shadow-normalBias={0.03}
         shadow-camera-left={-SHADOW_EXTENT}
         shadow-camera-right={SHADOW_EXTENT}
         shadow-camera-top={SHADOW_EXTENT}

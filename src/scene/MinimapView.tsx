@@ -64,7 +64,13 @@ export function MinimapView({ layout }: { layout: MapLayout }) {
     // ones the main pass just rendered are still valid. Without this, every
     // render() call would redraw them: a second, invisible shadow pass.
     gl.shadowMap.autoUpdate = false
+    // Scene fog fades by distance from the camera; the minimap camera hangs
+    // high above the map, so it would haze the whole minimap. A map should
+    // be crisp, so the minimap is drawn without it.
+    const haze = scene.fog
+    scene.fog = null
     gl.render(scene, minimapCamera)
+    scene.fog = haze
     gl.shadowMap.autoUpdate = true
     gl.setScissorTest(false)
   }, 1)

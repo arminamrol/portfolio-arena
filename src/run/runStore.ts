@@ -167,6 +167,14 @@ export function selectCapturesRemaining(state: RunState) {
   return Math.max(0, CAPTURES_FOR_VICTORY - state.captures.size)
 }
 
+export type HeroAnimation = 'idle' | 'walk'
+
+// The Hero walks exactly while it has somewhere to go; the move target is
+// cleared on arrival.
+export function selectHeroAnimation(state: RunState): HeroAnimation {
+  return state.moveTarget ? 'walk' : 'idle'
+}
+
 // Proximity is a plain distance check against each Tower's centre: no
 // physics engine, no colliders. Ranges never overlap, so at most one Tower
 // is in range.

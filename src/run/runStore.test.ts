@@ -8,6 +8,7 @@ import {
   createRunStore,
   NEXUS_RANGE,
   selectCapturesRemaining,
+  selectHeroAnimation,
   selectLevel,
   SHOP_RANGE,
   TOWER_RANGE,
@@ -53,6 +54,31 @@ describe('Run store', () => {
     run.getState().heroMovedTo({ x: 5, z: 0 })
 
     expect(run.getState().moveTarget).toBeNull()
+  })
+
+  describe('Hero animation', () => {
+    it('idles at the Base before any move', () => {
+      const run = createRunStore()
+
+      expect(selectHeroAnimation(run.getState())).toBe('idle')
+    })
+
+    it('walks while the Hero is on its way to a move target', () => {
+      const run = createRunStore()
+      run.getState().setMoveTarget({ x: 5, z: 0 })
+      run.getState().heroMovedTo({ x: 2, z: 0 })
+
+      expect(selectHeroAnimation(run.getState())).toBe('walk')
+    })
+
+    it('goes back to idle once the Hero arrives', () => {
+      const run = createRunStore()
+      run.getState().setMoveTarget({ x: 5, z: 0 })
+
+      run.getState().heroMovedTo({ x: 5, z: 0 })
+
+      expect(selectHeroAnimation(run.getState())).toBe('idle')
+    })
   })
 
   describe('Capture and Info Panel', () => {

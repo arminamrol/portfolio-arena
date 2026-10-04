@@ -11,10 +11,18 @@ import { Base, Nexus, Shop } from './Landmarks'
 import { Lights } from './Lights'
 import { MinimapView } from './MinimapView'
 import { MoveTargetMarker } from './MoveTargetMarker'
+import { Scenery } from './Scenery'
 import { Towers } from './Towers'
 import { CAMERA_OFFSET } from './isometricCamera'
 
 const layout = mapLayout(resumeData)
+
+// Scene fog's linear ramp, in world units of distance from the camera: no
+// haze nearer than HAZE_NEAR, full FOG_COLOR at HAZE_FAR. The camera sits
+// 30 units from the Hero, so the ground around the Hero stays clear and
+// only the far (upper) part of the screen fades a little.
+const HAZE_NEAR = 34
+const HAZE_FAR = 90
 
 export function Scene() {
   return (
@@ -43,9 +51,18 @@ export function Scene() {
       camera={{ position: CAMERA_OFFSET, zoom: 40, near: 0.1, far: 100 }}
     >
       <color attach="background" args={[FOG_COLOR]} />
+      {/* Scene fog (Three.js's Fog class, not our Fog of war below): every
+          material with fog enabled, the built-in ones by default, blends
+          its colour toward the fog colour by its distance from the camera.
+          It is computed per pixel in the material's own shader, so it costs
+          next to nothing. Linear Fog ramps between near and far; FogExp2
+          thickens exponentially instead. Matching the background makes
+          the far side of the map melt into the void around it. */}
+      <fog attach="fog" args={[FOG_COLOR, HAZE_NEAR, HAZE_FAR]} />
       <Lights />
       <Ground />
       <Lanes lanes={layout.lanes} />
+      <Scenery layout={layout} />
       <Base position={layout.base} />
       <Shop position={layout.shop} />
       <Nexus position={layout.nexus} />

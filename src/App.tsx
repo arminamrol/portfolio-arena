@@ -1,5 +1,7 @@
 import { lazy, Suspense, useState } from 'react'
 import { PlainResume } from './plain/PlainResume'
+import { LoadingScreen } from './ui/LoadingScreen'
+import { SkipControl } from './ui/SkipControl'
 
 // Code-split: the game module (and with it three and React Three Fiber) is
 // fetched only the first time the game is shown.
@@ -29,8 +31,17 @@ export function App({ webglAvailable }: AppProps) {
   }
 
   return (
-    // No fallback yet; the loading screen comes with the art pass.
-    <Suspense fallback={null}>
+    // While the game's code downloads, the loading screen (and the Skip
+    // control, which is always visible) show already, and stay on screen
+    // without a flicker until the models are in too.
+    <Suspense
+      fallback={
+        <>
+          <SkipControl onSkip={() => switchTo('plain')} takeFocus={switched} />
+          <LoadingScreen />
+        </>
+      }
+    >
       <Game onSkip={() => switchTo('plain')} takeFocus={switched} />
     </Suspense>
   )

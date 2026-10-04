@@ -100,6 +100,6 @@ function pointAlongPath(path: GroundPosition[], along: number): GroundPosition {
   return path[path.length - 1]
 }
 
-function distance(a: GroundPosition, b: GroundPosition) {
+export function distance(a: GroundPosition, b: GroundPosition) {
   return Math.hypot(b.x - a.x, b.z - a.z)
 }
