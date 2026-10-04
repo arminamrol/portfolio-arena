@@ -1,0 +1,129 @@
+/* The page shell (index.css) hides overflow for the full-screen canvas, so
+   the Plain Resume scrolls itself. */
+.plain-resume {
+  height: 100%;
+  overflow-y: auto;
+  background: #181c26;
+  color: #ece6d8;
+  font-family: system-ui, sans-serif;
+  line-height: 1.6;
+}
+
+.plain-resume__page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 48px 16px 64px;
+}
+
+.plain-resume__name {
+  margin: 0;
+  font-size: 2.25rem;
+  line-height: 1.2;
+}
+
+/* Focused only when switching from the game; the outline would be noise. */
+.plain-resume__name:focus {
+  outline: none;
+}
+
+.plain-resume__title {
+  margin: 4px 0 16px;
+  color: #f2e394;
+  font-size: 1.15rem;
+}
+
+.plain-resume__summary {
+  margin: 0;
+}
+
+.plain-resume__play {
+  margin-top: 20px;
+  padding: 8px 16px;
+  border: 1px solid #f2e394;
+  border-radius: 6px;
+  background: transparent;
+  color: #f2e394;
+  font: inherit;
+  cursor: pointer;
+}
+
+.plain-resume__play:hover {
+  background: rgb(242 227 148 / 0.15);
+}
+
+.plain-resume a {
+  color: #f2e394;
+}
+
+.plain-resume__play:focus-visible,
+.plain-resume a:focus-visible {
+  outline: 2px solid #f2e394;
+  outline-offset: 2px;
+}
+
+.plain-resume__section {
+  margin-top: 40px;
+}
+
+.plain-resume__section-title {
+  margin: 0 0 16px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgb(236 230 216 / 0.2);
+  font-size: 1.4rem;
+}
+
+.plain-resume__entry + .plain-resume__entry {
+  margin-top: 24px;
+}
+
+.plain-resume__entry p,
+.plain-resume__skill p {
+  margin: 0 0 6px;
+}
+
+.plain-resume__entry-title,
+.plain-resume__skill-name {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.plain-resume__entry-subtitle,
+.plain-resume__hint {
+  color: rgb(236 230 216 / 0.7);
+  font-size: 0.9rem;
+}
+
+.plain-resume__entry-links,
+.plain-resume__contact-links {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.plain-resume__skills {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 24px;
+}
+
+.plain-resume__skill-level {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+
+.plain-resume__meter {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.plain-resume__pip {
+  width: 12px;
+  height: 12px;
+  border: 1px solid #f2e394;
+  border-radius: 50%;
+}
+
+.plain-resume__pip--filled {
+  background: #f2e394;
+}

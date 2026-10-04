@@ -5,7 +5,9 @@
   top: 132px;
   left: 16px;
   width: min(320px, calc(100vw - 32px));
-  max-height: calc(100vh - 148px);
+  /* Stops above the Skip control in the bottom left corner (16px margin,
+     ~36px button, 8px gap). */
+  max-height: calc(100vh - 192px);
   box-sizing: border-box;
   overflow-y: auto;
   padding: 24px;

@@ -6,3 +6,10 @@ body,
   height: 100%;
   overflow: hidden;
 }
+
+/* The canvas fills its parent, so the game's wrapper fills the page. */
+.game {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
