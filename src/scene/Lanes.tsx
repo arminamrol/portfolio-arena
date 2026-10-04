@@ -2,6 +2,7 @@ import { useEffect, useMemo } from 'react'
 import { BoxGeometry, CanvasTexture, MeshStandardMaterial, SRGBColorSpace } from 'three'
 import type { LaneLayout } from '../map/mapLayout'
 import type { GroundPosition } from '../run/movement'
+import { mainViewOnlyLayers } from './layers'
 
 const LANE_WIDTH = 2
 const LANE_THICKNESS = 0.02
@@ -72,9 +73,10 @@ function LaneLabel({ text, position }: { text: string; position: GroundPosition 
     // (world (1, 0, -1)). The child plane is tipped -90° around X to lie flat.
     // Rotations stack through the parent, so the text lies on the ground
     // *and* reads left to right on screen; the plane never needs to know.
-    // It floats just above the lane, but below the move target marker.
+    // It floats just above the lane, but below the move target marker, and
+    // is left off the minimap, where it would be too small to read.
     <group position={[position.x, LANE_THICKNESS + 0.01, position.z]} rotation={[0, Math.PI / 4, 0]}>
-      <mesh rotation={[-Math.PI / 2, 0, 0]}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} layers={mainViewOnlyLayers}>
         <planeGeometry args={[(LABEL_HEIGHT * width) / height, LABEL_HEIGHT]} />
         {/* The texture is sampled across the plane's UVs (0..1 corner to
             corner). transparent lets the canvas's clear pixels show the lane

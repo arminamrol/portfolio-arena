@@ -1,0 +1,11 @@
+.minimap {
+  position: fixed;
+  box-sizing: border-box;
+  border: 2px solid rgb(242 227 148 / 0.6);
+  border-radius: 4px;
+  box-shadow: 0 4px 16px rgb(0 0 0 / 0.4);
+  cursor: crosshair;
+  /* Dragging on the minimap steers the Hero; on touch screens it must not
+     scroll or zoom the page instead. */
+  touch-action: none;
+}

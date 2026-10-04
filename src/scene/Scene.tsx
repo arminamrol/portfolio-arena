@@ -8,6 +8,7 @@ import { Hero } from './Hero'
 import { Lanes } from './Lanes'
 import { Base, Nexus, Shop } from './Landmarks'
 import { Lights } from './Lights'
+import { MinimapView } from './MinimapView'
 import { MoveTargetMarker } from './MoveTargetMarker'
 import { Towers } from './Towers'
 import { CAMERA_OFFSET } from './isometricCamera'
@@ -52,6 +53,7 @@ export function Scene() {
       <Hero />
       <AbilityEffects />
       <CameraRig />
+      <MinimapView layout={layout} />
     </Canvas>
   )
 }

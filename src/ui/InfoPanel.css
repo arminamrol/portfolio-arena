@@ -2,7 +2,9 @@
   position: fixed;
   top: 16px;
   right: 16px;
-  bottom: 16px;
+  /* Stops above the minimap (MINIMAP_SIZE 200px between two 16px margins)
+     so it neither hides it nor sits under its click area. */
+  bottom: 232px;
   width: min(360px, calc(100vw - 32px));
   box-sizing: border-box;
   overflow-y: auto;
