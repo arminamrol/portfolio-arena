@@ -3,6 +3,7 @@ import { AbilityBar } from './ui/AbilityBar'
 import { Hud } from './ui/Hud'
 import { InfoPanel } from './ui/InfoPanel'
 import { Minimap } from './ui/Minimap'
+import { ShopPanel } from './ui/ShopPanel'
 
 export function App() {
   return (
@@ -10,6 +11,7 @@ export function App() {
       <Scene />
       <Hud />
       <InfoPanel />
+      <ShopPanel />
       <AbilityBar />
       <Minimap />
     </>

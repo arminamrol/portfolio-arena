@@ -12,6 +12,10 @@ import type { GroundPosition } from './movement'
 // overlap.
 export const TOWER_RANGE = 2.5
 
+// How close the Hero must stand to the Shop's centre to open it. Small
+// enough that the Hero spawning at the Base starts out of range.
+export const SHOP_RANGE = 2.5
+
 export type RunState = {
   heroPosition: GroundPosition
   moveTarget: GroundPosition | null
@@ -21,6 +25,8 @@ export type RunState = {
   xp: number
   // Resume Entry id whose Info Panel is open, or null.
   openInfoPanel: string | null
+  // Whether the Shop panel is open.
+  shopOpen: boolean
   // The latest Ability cast, or null. `id` is new on every cast, so casting
   // the same key twice is still two changes that subscribers see.
   abilityCast: AbilityCast | null
@@ -30,6 +36,9 @@ export type RunState = {
   heroMovedTo: (position: GroundPosition) => void
   setMoveTarget: (position: GroundPosition) => void
   closeInfoPanel: () => void
+  openShop: () => void
+  closeShop: () => void
+  toggleShop: () => void
   castAbility: (key: AbilityKey) => void
 }
 
@@ -51,6 +60,7 @@ export function createRunStore() {
     captures: new Set(),
     xp: 0,
     openInfoPanel: null,
+    shopOpen: false,
     abilityCast: null,
     // The Hero starts at the Base, so the ground around it starts revealed.
     fog: revealAround(createFog(), layout.base),
@@ -80,10 +90,23 @@ export function createRunStore() {
         }
       }
 
+      // The Shop works the same way: open on entering its range, close on
+      // leaving it, nothing in between. A Shop opened from afar (the HUD
+      // button) has no entering edge, so it stays open until closed.
+      const wasAtShop = isAtShop(layout.shop, state.heroPosition)
+      const nowAtShop = isAtShop(layout.shop, position)
+      if (nowAtShop !== wasAtShop) update.shopOpen = nowAtShop
+
       set(update)
     },
 
     closeInfoPanel: () => set({ openInfoPanel: null }),
+
+    openShop: () => set({ shopOpen: true }),
+
+    closeShop: () => set({ shopOpen: false }),
+
+    toggleShop: () => set((state) => ({ shopOpen: !state.shopOpen })),
 
     setMoveTarget: (position) => set({ moveTarget: position }),
 
@@ -102,7 +125,15 @@ export function selectLevel(state: RunState) {
 // physics engine, no colliders. Ranges never overlap, so at most one Tower
 // is in range.
 function towerInRange(towers: TowerLayout[], position: GroundPosition) {
-  return towers.find((tower) => Math.hypot(tower.position.x - position.x, tower.position.z - position.z) <= TOWER_RANGE) ?? null
+  return towers.find((tower) => isWithin(tower.position, position, TOWER_RANGE)) ?? null
+}
+
+function isAtShop(shop: GroundPosition, position: GroundPosition) {
+  return isWithin(shop, position, SHOP_RANGE)
+}
+
+function isWithin(a: GroundPosition, b: GroundPosition, range: number) {
+  return Math.hypot(a.x - b.x, a.z - b.z) <= range
 }
 
 // Exact comparison is enough: stepToward lands exactly on the target.

@@ -42,3 +42,27 @@
     transition: none;
   }
 }
+
+.hud__shop-button {
+  margin-top: 8px;
+  padding: 4px 12px;
+  border: 1px solid #f2e394;
+  border-radius: 6px;
+  background: transparent;
+  color: #f2e394;
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+  /* The HUD lets clicks fall through; the button must still take them. */
+  pointer-events: auto;
+}
+
+.hud__shop-button:hover,
+.hud__shop-button[aria-expanded='true'] {
+  background: rgb(242 227 148 / 0.15);
+}
+
+.hud__shop-button:focus-visible {
+  outline: 2px solid #f2e394;
+  outline-offset: 2px;
+}

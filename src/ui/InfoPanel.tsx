@@ -17,7 +17,8 @@ export function InfoPanel() {
   useEffect(() => {
     if (!entry) return
     function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') runStore.getState().closeInfoPanel()
+      // Skipped when the Shop panel already used this Esc (see ShopPanel).
+      if (event.key === 'Escape' && !event.defaultPrevented) runStore.getState().closeInfoPanel()
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)

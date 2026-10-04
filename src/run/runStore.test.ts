@@ -3,7 +3,7 @@ import { mapLayout } from '../map/mapLayout'
 import { resumeData } from '../resume/resumeData'
 import { MAX_LEVEL, XP_PER_CAPTURE } from './level'
 import { FOG_REVEAL_RADIUS, isRevealed } from './fog'
-import { createRunStore, selectLevel, TOWER_RANGE } from './runStore'
+import { createRunStore, selectLevel, SHOP_RANGE, TOWER_RANGE } from './runStore'
 
 describe('Run store', () => {
   it('starts the Hero at the Base with no move target', () => {
@@ -264,6 +264,65 @@ describe('Run store', () => {
 
       expect(second?.key).toBe('Q')
       expect(second?.id).not.toBe(first?.id)
+    })
+  })
+
+  describe('Shop', () => {
+    it('starts with the Shop closed, though the Hero spawns near it', () => {
+      const run = createRunStore()
+
+      expect(run.getState().shopOpen).toBe(false)
+    })
+
+    it('opens and closes the Shop from anywhere', () => {
+      const run = createRunStore()
+
+      run.getState().openShop()
+      expect(run.getState().shopOpen).toBe(true)
+
+      run.getState().closeShop()
+      expect(run.getState().shopOpen).toBe(false)
+    })
+
+    it('opens the Shop when the Hero walks up to it and closes it when the Hero walks away', () => {
+      const run = createRunStore()
+      const { shop, base } = mapLayout(resumeData)
+
+      run.getState().heroMovedTo({ x: shop.x - SHOP_RANGE, z: shop.z })
+      expect(run.getState().shopOpen).toBe(true)
+
+      run.getState().heroMovedTo(base)
+      expect(run.getState().shopOpen).toBe(false)
+    })
+
+    it('lets the Shop be closed while the Hero still stands at it', () => {
+      const run = createRunStore()
+      const { shop } = mapLayout(resumeData)
+      run.getState().heroMovedTo(shop)
+
+      run.getState().closeShop()
+      run.getState().heroMovedTo({ x: shop.x + 0.1, z: shop.z })
+
+      expect(run.getState().shopOpen).toBe(false)
+    })
+
+    it('toggles the Shop', () => {
+      const run = createRunStore()
+
+      run.getState().toggleShop()
+      expect(run.getState().shopOpen).toBe(true)
+
+      run.getState().toggleShop()
+      expect(run.getState().shopOpen).toBe(false)
+    })
+
+    it('keeps a Shop opened from afar open while the Hero walks elsewhere', () => {
+      const run = createRunStore()
+      run.getState().openShop()
+
+      run.getState().heroMovedTo({ x: 0, z: 0 })
+
+      expect(run.getState().shopOpen).toBe(true)
     })
   })
 })

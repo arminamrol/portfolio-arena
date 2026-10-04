@@ -1,12 +1,14 @@
 import { resumeData } from '../resume/resumeData'
-import { selectLevel, useRunStore } from '../run/runStore'
+import { runStore, selectLevel, useRunStore } from '../run/runStore'
 import './Hud.css'
+import { SHOP_BUTTON_ID, SHOP_PANEL_ID } from './ShopPanel'
 
-// The Hero's name and Level, top left. It subscribes to the Level alone, so
-// it re-renders only on a Level change; the canvas (a sibling in App) never
-// re-renders because of it.
+// The Hero's name and Level, and the Shop button, top left. It subscribes to
+// the Level and whether the Shop is open, so it re-renders only when one of
+// those changes; the canvas (a sibling in App) never re-renders because of it.
 export function Hud() {
   const level = useRunStore(selectLevel)
+  const shopOpen = useRunStore((state) => state.shopOpen)
 
   return (
     <header className="hud">
@@ -18,6 +20,17 @@ export function Hud() {
           Level {level}
         </span>
       </p>
+      {/* Toggles the Shop from anywhere on the map, not only at the Shop. */}
+      <button
+        type="button"
+        id={SHOP_BUTTON_ID}
+        className="hud__shop-button"
+        aria-expanded={shopOpen}
+        aria-controls={SHOP_PANEL_ID}
+        onClick={() => runStore.getState().toggleShop()}
+      >
+        Shop
+      </button>
     </header>
   )
 }
