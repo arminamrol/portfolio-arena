@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { resumeData } from '../resume/resumeData'
-import type { ResumeData } from '../resume/types'
+import type { LaneEntries, LaneKey, ResumeData, ResumeEntry } from '../resume/types'
 import type { GroundPosition } from '../run/movement'
+import { NEXUS_RANGE, TOWER_RANGE } from '../run/runStore'
 import { mapLayout, type MapLayout } from './mapLayout'
 
 describe('mapLayout', () => {
@@ -18,9 +19,9 @@ describe('mapLayout', () => {
   it('places one Tower per Resume Entry, spaced evenly along a straight Lane', () => {
     // Mid runs straight from the Base (14, 14) to the Nexus (-14, -14). Three
     // Towers split it into four equal gaps.
-    const mid = laneByLabel(mapLayout(resumeData), 'Projects')
+    const mid = laneByLabel(mapLayout(withLaneSizes({ top: 2, mid: 3, bottom: 2 })), 'Projects')
 
-    expect(mid.towers.map((tower) => tower.entryId)).toEqual(['portfolio-arena', 'tiny-charts', 'design-tokens-cli'])
+    expect(mid.towers.map((tower) => tower.entryId)).toEqual(['mid-0', 'mid-1', 'mid-2'])
     expectPositions(mid.towers, [
       { x: 7, z: 7 },
       { x: 0, z: 0 },
@@ -32,7 +33,7 @@ describe('mapLayout', () => {
     // Top runs (14, 14) → (-14, 14) → (-14, -14): 56 units. Two Towers split
     // it into three gaps of 56 / 3 ≈ 18.67. The second Tower, 37.33 along,
     // is 9.33 past the corner.
-    const top = laneByLabel(mapLayout(resumeData), 'Education')
+    const top = laneByLabel(mapLayout(withLaneSizes({ top: 2, mid: 3, bottom: 2 })), 'Education')
 
     expectPositions(top.towers, [
       { x: -4.667, z: 14 },
@@ -41,22 +42,51 @@ describe('mapLayout', () => {
   })
 
   it('re-spaces a Lane when a Resume Entry is added to it', () => {
-    const [first, second] = resumeData.lanes.top.entries
-    const extra = { ...first, id: 'extra-course' }
-    const withExtra = {
-      ...resumeData,
-      lanes: { ...resumeData.lanes, top: { ...resumeData.lanes.top, entries: [first, second, extra] } },
-    } satisfies ResumeData
-
     // Three Towers split the 56-unit top Lane into four gaps of 14.
-    const top = laneByLabel(mapLayout(withExtra), 'Education')
+    const top = laneByLabel(mapLayout(withLaneSizes({ top: 3, mid: 3, bottom: 2 })), 'Education')
 
-    expect(top.towers.map((tower) => tower.entryId)).toEqual([first.id, second.id, 'extra-course'])
+    expect(top.towers.map((tower) => tower.entryId)).toEqual(['top-0', 'top-1', 'top-2'])
     expectPositions(top.towers, [
       { x: 0, z: 14 },
       { x: -14, z: 14 },
       { x: -14, z: 0 },
     ])
+  })
+
+  it('places a lone Tower halfway along its Lane', () => {
+    // Half of the 56-unit top Lane is 28 units: exactly the corner.
+    const top = laneByLabel(mapLayout(withLaneSizes({ top: 1, mid: 3, bottom: 4 })), 'Education')
+
+    expectPositions(top.towers, [{ x: -14, z: 14 }])
+  })
+
+  it('spaces four Towers evenly along a Lane', () => {
+    // Bottom runs (14, 14) → (14, -14) → (-14, -14): 56 units. Four Towers
+    // split it into five gaps of 11.2; the last two are past the corner.
+    const bottom = laneByLabel(mapLayout(withLaneSizes({ top: 1, mid: 3, bottom: 4 })), 'Experience')
+
+    expectPositions(bottom.towers, [
+      { x: 14, z: 2.8 },
+      { x: 14, z: -8.4 },
+      { x: 8.4, z: -14 },
+      { x: -2.8, z: -14 },
+    ])
+  })
+
+  it.each([
+    ['one Tower', 1],
+    ['four Towers', 4],
+  ] as const)('keeps every range apart when each Lane has %s', (_, size) => {
+    const layout = mapLayout(withLaneSizes({ top: size, mid: size, bottom: size }))
+    const positions = layout.lanes.flatMap((lane) => lane.towers.map((tower) => tower.position))
+
+    positions.forEach((a, i) =>
+      positions.slice(i + 1).forEach((b) => expect(distance(a, b)).toBeGreaterThan(2 * TOWER_RANGE)),
+    )
+    for (const position of positions) {
+      expect(distance(position, layout.base)).toBeGreaterThan(TOWER_RANGE)
+      expect(distance(position, layout.nexus)).toBeGreaterThan(TOWER_RANGE + NEXUS_RANGE)
+    }
   })
 
   it('puts the Shop near the Base, clear of every Lane', () => {
@@ -77,6 +107,23 @@ describe('mapLayout', () => {
     }
   })
 })
+
+// The placeholder Resume Data with each Lane cut down or padded out to the
+// given number of Resume Entries.
+function withLaneSizes(sizes: Record<LaneKey, LaneEntries['length']>) {
+  const resize = (key: LaneKey) => {
+    const lane = resumeData.lanes[key]
+    const entries: ResumeEntry[] = Array.from({ length: sizes[key] }, (_, i) => ({
+      ...lane.entries[i % lane.entries.length],
+      id: `${key}-${i}`,
+    }))
+    return { ...lane, entries: entries as LaneEntries }
+  }
+  return {
+    ...resumeData,
+    lanes: { top: resize('top'), mid: resize('mid'), bottom: resize('bottom') },
+  } satisfies ResumeData
+}
 
 function distance(a: GroundPosition, b: GroundPosition) {
   return Math.hypot(b.x - a.x, b.z - a.z)

@@ -27,11 +27,16 @@ describe('Resume Data types', () => {
     void ({ name: 'React', level: 3 } satisfies Skill)
   })
 
-  it('reject a Lane with fewer than 2 or more than 3 Resume Entries', () => {
-    // @ts-expect-error one entry is too few
+  it('accept a Lane with 1–4 Resume Entries', () => {
     void ({ label: 'Projects', entries: [entry] } satisfies Lane)
-    // @ts-expect-error four entries are too many
     void ({ label: 'Projects', entries: [entry, entry, entry, entry] } satisfies Lane)
+  })
+
+  it('reject a Lane with no Resume Entries or more than 4', () => {
+    // @ts-expect-error an empty Lane has no Towers
+    void ({ label: 'Projects', entries: [] } satisfies Lane)
+    // @ts-expect-error five entries are too many
+    void ({ label: 'Projects', entries: [entry, entry, entry, entry, entry] } satisfies Lane)
   })
 
   it('reject a Resume Entry missing a required field', () => {

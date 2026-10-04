@@ -20,8 +20,12 @@ export type ResumeEntry = {
   links: Link[]
 }
 
-// A Lane holds 2–3 Towers, so it holds a 2- or 3-element tuple of entries.
-export type LaneEntries = [ResumeEntry, ResumeEntry] | [ResumeEntry, ResumeEntry, ResumeEntry]
+// A Lane holds 1–4 Towers, so it holds a 1- to 4-element tuple of entries.
+export type LaneEntries =
+  | [ResumeEntry]
+  | [ResumeEntry, ResumeEntry]
+  | [ResumeEntry, ResumeEntry, ResumeEntry]
+  | [ResumeEntry, ResumeEntry, ResumeEntry, ResumeEntry]
 
 export type Lane = {
   label: string
