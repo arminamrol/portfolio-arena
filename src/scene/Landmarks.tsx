@@ -1,4 +1,5 @@
 import type { GroundPosition } from '../run/movement'
+import { useRevealed } from '../run/runStore'
 
 // Thin enough that the Hero (standing at y = 0) looks like it stands on it,
 // and below the move target marker so the marker still shows on top.
@@ -16,8 +17,10 @@ export function Base({ position }: { position: GroundPosition }) {
 }
 
 export function Shop({ position }: { position: GroundPosition }) {
+  // Hidden until revealed: it would stick up through the Fog (see Towers).
+  const revealed = useRevealed(position)
   return (
-    <group position={[position.x, 0, position.z]}>
+    <group position={[position.x, 0, position.z]} visible={revealed}>
       <mesh position={[0, 0.75, 0]} castShadow receiveShadow>
         <boxGeometry args={[2, 1.5, 2]} />
         <meshStandardMaterial color="#a0673c" />
@@ -33,8 +36,10 @@ export function Shop({ position }: { position: GroundPosition }) {
 }
 
 export function Nexus({ position }: { position: GroundPosition }) {
+  // Hidden until revealed: it would stick up through the Fog (see Towers).
+  const revealed = useRevealed(position)
   return (
-    <group position={[position.x, 0, position.z]}>
+    <group position={[position.x, 0, position.z]} visible={revealed}>
       <Platform color="#5d5870" />
       <mesh position={[0, 2.5, 0]} castShadow>
         <octahedronGeometry args={[1.5]} />

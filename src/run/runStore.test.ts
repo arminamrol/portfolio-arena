@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest'
 import { mapLayout } from '../map/mapLayout'
 import { resumeData } from '../resume/resumeData'
 import { MAX_LEVEL, XP_PER_CAPTURE } from './level'
-import { createRunStore, selectLevel } from './runStore'
+import { FOG_REVEAL_RADIUS, isRevealed } from './fog'
+import { createRunStore, selectLevel, TOWER_RANGE } from './runStore'
 
 describe('Run store', () => {
   it('starts the Hero at the Base with no move target', () => {
@@ -169,6 +170,72 @@ describe('Run store', () => {
       // Never drops, and every map (at least 6 Towers) tops out.
       expect(levels).toEqual([...levels].sort((a, b) => a - b))
       expect(levels.at(-1)).toBe(MAX_LEVEL)
+    })
+  })
+
+  describe('Fog', () => {
+    it('starts the Run with the ground around the Base revealed and the Nexus in Fog', () => {
+      const run = createRunStore()
+      const { base, nexus } = mapLayout(resumeData)
+
+      expect(isRevealed(run.getState().fog, base)).toBe(true)
+      expect(isRevealed(run.getState().fog, nexus)).toBe(false)
+    })
+
+    it('reveals the ground around the Hero as it moves', () => {
+      const run = createRunStore()
+      const spot = { x: 0, z: 0 }
+      const nearby = { x: FOG_REVEAL_RADIUS - 1, z: 0 }
+      const beyond = { x: FOG_REVEAL_RADIUS + 2, z: 0 }
+      expect(isRevealed(run.getState().fog, spot)).toBe(false)
+
+      run.getState().heroMovedTo(spot)
+
+      expect(isRevealed(run.getState().fog, spot)).toBe(true)
+      expect(isRevealed(run.getState().fog, nearby)).toBe(true)
+      expect(isRevealed(run.getState().fog, beyond)).toBe(false)
+    })
+
+    it('keeps revealed ground revealed after the Hero leaves', () => {
+      const run = createRunStore()
+      const { base, nexus } = mapLayout(resumeData)
+      run.getState().heroMovedTo({ x: 0, z: 0 })
+
+      run.getState().heroMovedTo(nexus)
+
+      expect(isRevealed(run.getState().fog, { x: 0, z: 0 })).toBe(true)
+      expect(isRevealed(run.getState().fog, base)).toBe(true)
+      expect(isRevealed(run.getState().fog, nexus)).toBe(true)
+    })
+
+    it('keeps the same Fog while the Hero moves over ground it has already revealed', () => {
+      const run = createRunStore()
+      run.getState().heroMovedTo({ x: 0, z: 0 })
+      const before = run.getState().fog
+
+      run.getState().heroMovedTo({ x: 0, z: 0 })
+
+      // The same array: nothing new to redraw.
+      expect(run.getState().fog).toBe(before)
+    })
+
+    it('reveals every Tower by the time the Hero is in its range', () => {
+      for (const tower of allTowers()) {
+        const run = createRunStore()
+        const edgeOfRange = { x: tower.position.x + TOWER_RANGE, z: tower.position.z }
+
+        run.getState().heroMovedTo(edgeOfRange)
+
+        expect(isRevealed(run.getState().fog, tower.position)).toBe(true)
+      }
+    })
+
+    it('clamps positions past the edge of the map onto it', () => {
+      const run = createRunStore()
+
+      run.getState().heroMovedTo({ x: -100, z: -100 })
+
+      expect(isRevealed(run.getState().fog, { x: -100, z: -100 })).toBe(true)
     })
   })
 

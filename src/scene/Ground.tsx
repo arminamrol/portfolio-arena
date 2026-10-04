@@ -1,8 +1,7 @@
 import { useThree, type ThreeEvent } from '@react-three/fiber'
 import { useEffect } from 'react'
+import { GROUND_SIZE } from '../map/mapLayout'
 import { runStore } from '../run/runStore'
-
-export const GROUND_SIZE = 40
 
 const RIGHT_BUTTON = 2
 

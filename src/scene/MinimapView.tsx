@@ -4,7 +4,7 @@ import { CircleGeometry, MeshBasicMaterial, PlaneGeometry, type BufferGeometry, 
 import type { MapLayout, TowerLayout } from '../map/mapLayout'
 import { MINIMAP_MARGIN, MINIMAP_SIZE, minimapCamera } from '../minimap/minimapCamera'
 import type { GroundPosition } from '../run/movement'
-import { runStore, useRunStore } from '../run/runStore'
+import { runStore, useRevealed, useRunStore } from '../run/runStore'
 import { MAIN_VIEW_LAYER, minimapOnlyLayers } from './layers'
 
 // Icons float well above the tallest model (the Nexus crystal), so from
@@ -92,8 +92,11 @@ type MinimapIconProps = {
 }
 
 // A flat symbol over a spot on the map, seen by the minimap camera only.
+// Icons float above the Fog plane, so each hides until its spot is revealed,
+// like the structure it stands for.
 function MinimapIcon({ geometry, material, position }: MinimapIconProps) {
-  return <mesh geometry={geometry} material={material} layers={minimapOnlyLayers} rotation={FLAT} position={[position.x, ICON_HEIGHT, position.z]} />
+  const revealed = useRevealed(position)
+  return <mesh geometry={geometry} material={material} layers={minimapOnlyLayers} rotation={FLAT} position={[position.x, ICON_HEIGHT, position.z]} visible={revealed} />
 }
 
 function HeroIcon() {

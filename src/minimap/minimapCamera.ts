@@ -1,6 +1,6 @@
 import { MathUtils, OrthographicCamera, Vector3 } from 'three'
+import { GROUND_SIZE } from '../map/mapLayout'
 import type { GroundPosition } from '../run/movement'
-import { GROUND_SIZE } from '../scene/Ground'
 import { MINIMAP_LAYER } from '../scene/layers'
 
 // The minimap's on-screen square, in CSS pixels. The scene draws into this

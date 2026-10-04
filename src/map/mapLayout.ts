@@ -25,6 +25,10 @@ export type MapLayout = {
   lanes: LaneLayout[]
 }
 
+// The ground is a square this many world units on each side, centred on the
+// origin. Everything on the map stands inside it.
+export const GROUND_SIZE = 40
+
 // Distance from the map centre to the Base and Nexus along each axis. The
 // ground is a square centred on the origin; seen through the isometric
 // camera it is a diamond, with +x+z at the bottom corner and -x-z at the top.

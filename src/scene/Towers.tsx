@@ -2,7 +2,7 @@ import { useFrame } from '@react-three/fiber'
 import { useEffect, useRef } from 'react'
 import { ConeGeometry, CylinderGeometry, MeshStandardMaterial, RingGeometry, type Group, type Mesh, type MeshBasicMaterial } from 'three'
 import type { LaneLayout, TowerLayout } from '../map/mapLayout'
-import { TOWER_RANGE, useRunStore } from '../run/runStore'
+import { TOWER_RANGE, useRevealed, useRunStore } from '../run/runStore'
 
 const SHAFT_HEIGHT = 2.6
 const ROOF_HEIGHT = 1.2
@@ -38,6 +38,7 @@ export function Towers({ lanes }: { lanes: LaneLayout[] }) {
 function Tower({ tower }: { tower: TowerLayout }) {
   // Re-renders only when this Tower's Captured flag flips, i.e. once.
   const captured = useRunStore((state) => state.captures.has(tower.entryId))
+  const revealed = useRevealed(tower.position)
   const body = useRef<Group>(null)
   const ring = useRef<Mesh>(null)
   const ringMaterial = useRef<MeshBasicMaterial>(null)
@@ -77,7 +78,10 @@ function Tower({ tower }: { tower: TowerLayout }) {
   return (
     // Each Tower is a group: placing the group places all its parts, and the
     // parts' positions below are relative to the Tower's foot.
-    <group position={[tower.position.x, 0, tower.position.z]}>
+    // The Fog is a flat veil and the Tower sticks up through it, so the
+    // Tower hides itself until its spot is revealed. `visible` is inherited:
+    // hiding the group skips drawing (and shadow-casting) every child.
+    <group position={[tower.position.x, 0, tower.position.z]} visible={revealed}>
       <group ref={body}>
         {/* Cylinders and cones are centred on their origin, so lift each by
             half its height to stack them. */}

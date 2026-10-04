@@ -3,6 +3,7 @@ import { createStore } from 'zustand/vanilla'
 import { mapLayout, type TowerLayout } from '../map/mapLayout'
 import { resumeData } from '../resume/resumeData'
 import type { AbilityKey } from '../resume/types'
+import { createFog, isRevealed, revealAround, type Fog } from './fog'
 import { levelForXp, XP_PER_CAPTURE } from './level'
 import type { GroundPosition } from './movement'
 
@@ -23,6 +24,9 @@ export type RunState = {
   // The latest Ability cast, or null. `id` is new on every cast, so casting
   // the same key twice is still two changes that subscribers see.
   abilityCast: AbilityCast | null
+  // Which Fog cells the Hero has revealed this Run. A new array whenever
+  // more ground is revealed; read it with isRevealed.
+  fog: Fog
   heroMovedTo: (position: GroundPosition) => void
   setMoveTarget: (position: GroundPosition) => void
   closeInfoPanel: () => void
@@ -48,12 +52,15 @@ export function createRunStore() {
     xp: 0,
     openInfoPanel: null,
     abilityCast: null,
+    // The Hero starts at the Base, so the ground around it starts revealed.
+    fog: revealAround(createFog(), layout.base),
 
     heroMovedTo: (position) => {
       const state = get()
       const update: Partial<RunState> = {
         heroPosition: position,
         moveTarget: state.moveTarget && isSamePosition(state.moveTarget, position) ? null : state.moveTarget,
+        fog: revealAround(state.fog, position),
       }
 
       // Called every frame, so act only on the edges: the move that enters a
@@ -110,4 +117,10 @@ export const runStore = createRunStore()
 
 export function useRunStore<T>(selector: (state: RunState) => T): T {
   return useStore(runStore, selector)
+}
+
+// Whether the ground at `position` is revealed. A boolean, so the component
+// re-renders once, when its spot comes out of the Fog, not on every reveal.
+export function useRevealed(position: GroundPosition): boolean {
+  return useRunStore((state) => isRevealed(state.fog, position))
 }

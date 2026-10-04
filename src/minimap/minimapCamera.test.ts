@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { mapLayout } from '../map/mapLayout'
+import { GROUND_SIZE, mapLayout } from '../map/mapLayout'
 import { resumeData } from '../resume/resumeData'
-import { GROUND_SIZE } from '../scene/Ground'
 import { minimapToWorld } from './minimapCamera'
 
 const layout = mapLayout(resumeData)

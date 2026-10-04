@@ -4,6 +4,7 @@ import { resumeData } from '../resume/resumeData'
 import { AbilityEffects } from './AbilityEffects'
 import { CameraRig } from './CameraRig'
 import { Ground } from './Ground'
+import { Fog, FOG_COLOR } from './Fog'
 import { Hero } from './Hero'
 import { Lanes } from './Lanes'
 import { Base, Nexus, Shop } from './Landmarks'
@@ -41,7 +42,7 @@ export function Scene() {
       // the origin is framed in the centre.
       camera={{ position: CAMERA_OFFSET, zoom: 40, near: 0.1, far: 100 }}
     >
-      <color attach="background" args={['#1d2330']} />
+      <color attach="background" args={[FOG_COLOR]} />
       <Lights />
       <Ground />
       <Lanes lanes={layout.lanes} />
@@ -51,6 +52,9 @@ export function Scene() {
       <Towers lanes={layout.lanes} />
       <MoveTargetMarker />
       <Hero />
+      {/* After the Hero: useFrame callbacks run in mount order, so the Fog
+          uploads the ground the Hero revealed this frame, not last frame. */}
+      <Fog />
       <AbilityEffects />
       <CameraRig />
       <MinimapView layout={layout} />

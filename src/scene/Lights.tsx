@@ -1,4 +1,4 @@
-import { GROUND_SIZE } from './Ground'
+import { GROUND_SIZE } from '../map/mapLayout'
 
 const SHADOW_EXTENT = GROUND_SIZE / 2
 
