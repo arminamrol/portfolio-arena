@@ -27,7 +27,7 @@ describe('PlainResume', () => {
     expect(within(header).getByText(resumeData.hero.summary)).toBeTruthy()
   })
 
-  it('shows every Resume Entry under its Lane, with its links', () => {
+  it('shows every Resume Entry under its Lane, with its Highlights and links', () => {
     render(<PlainResume />)
 
     for (const lane of lanes) {
@@ -35,7 +35,10 @@ describe('PlainResume', () => {
       for (const entry of lane.entries) {
         const article = within(section).getByRole('article', { name: entry.title })
         expect(within(article).getByText(entry.subtitle)).toBeTruthy()
-        expect(within(article).getByText(entry.body)).toBeTruthy()
+        expect(within(article).getByText(entry.description)).toBeTruthy()
+        for (const highlight of entry.highlights) {
+          expect(within(article).getByText(highlight)).toBeTruthy()
+        }
         for (const link of entry.links) {
           expect(within(article).getByRole('link', { name: link.label }).getAttribute('href')).toBe(link.url)
         }

@@ -1,0 +1,17 @@
+.resume-entry__description {
+  margin: 0 0 16px;
+}
+
+/* Highlights sit closer to the description they expand on. */
+.resume-entry__description:has(+ .resume-entry__highlights) {
+  margin-bottom: 8px;
+}
+
+.resume-entry__highlights {
+  margin: 0 0 16px;
+  padding-left: 20px;
+}
+
+.resume-entry__highlights li + li {
+  margin-top: 4px;
+}

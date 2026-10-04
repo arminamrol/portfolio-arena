@@ -12,7 +12,11 @@ export type ResumeEntry = {
   id: string
   title: string
   subtitle: string
-  body: string
+  // One or two sentences on what the degree, job or project was.
+  description: string
+  // One achievement each, ideally with a measurable result. Shown as a
+  // bulleted list after the description; may be empty.
+  highlights: string[]
   links: Link[]
 }
 

@@ -2,7 +2,14 @@ import { describe, expect, it } from 'vitest'
 import { resumeData } from './resumeData'
 import type { Lane, ResumeData, ResumeEntry, Skill } from './types'
 
-const entry: ResumeEntry = { id: 'e', title: 'Title', subtitle: 'Subtitle', body: 'Body', links: [] }
+const entry: ResumeEntry = {
+  id: 'e',
+  title: 'Title',
+  subtitle: 'Subtitle',
+  description: 'Description',
+  highlights: [],
+  links: [],
+}
 
 // These checks run in `pnpm typecheck`, not at test time: every expected
 // error below fails the typecheck if its line stops being an error, i.e. if
@@ -28,8 +35,10 @@ describe('Resume Data types', () => {
   })
 
   it('reject a Resume Entry missing a required field', () => {
-    // @ts-expect-error body is missing
-    void ({ id: 'e', title: 'Title', subtitle: 'Subtitle', links: [] } satisfies ResumeEntry)
+    // @ts-expect-error description is missing
+    void ({ id: 'e', title: 'Title', subtitle: 'Subtitle', highlights: [], links: [] } satisfies ResumeEntry)
+    // @ts-expect-error highlights is missing
+    void ({ id: 'e', title: 'Title', subtitle: 'Subtitle', description: 'Description', links: [] } satisfies ResumeEntry)
   })
 
   it('reject Resume Data missing a Skill', () => {
@@ -44,6 +53,15 @@ describe('placeholder Resume Data', () => {
     const ids = Object.values(resumeData.lanes).flatMap((lane) => lane.entries.map((e) => e.id))
 
     expect(new Set(ids).size).toBe(ids.length)
+  })
+
+  // So the Info Panel's longest and empty cases both show before the real
+  // content lands.
+  it('has a Resume Entry with 5 Highlights and one with none', () => {
+    const counts = Object.values(resumeData.lanes).flatMap((lane) => lane.entries.map((e) => e.highlights.length))
+
+    expect(counts).toContain(5)
+    expect(counts).toContain(0)
   })
 
   it('has four Contact Links', () => {

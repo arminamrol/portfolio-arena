@@ -84,6 +84,10 @@
   margin: 0 0 6px;
 }
 
+.plain-resume__entry .resume-entry__highlights {
+  margin-bottom: 6px;
+}
+
 .plain-resume__entry-title,
 .plain-resume__skill-name {
   margin: 0;

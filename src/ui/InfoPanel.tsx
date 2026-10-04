@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { resumeData } from '../resume/resumeData'
 import type { ResumeEntry } from '../resume/types'
 import { runStore, useRunStore } from '../run/runStore'
+import { ResumeEntryContent } from './ResumeEntryContent'
 import './InfoPanel.css'
 
 const entriesById = new Map<string, ResumeEntry>(
@@ -47,7 +48,7 @@ export function InfoPanel() {
             {entry.title}
           </h2>
           <p className="info-panel__subtitle">{entry.subtitle}</p>
-          <p className="info-panel__body">{entry.body}</p>
+          <ResumeEntryContent entry={entry} />
           {entry.links.length > 0 && (
             <ul className="info-panel__links">
               {entry.links.map((link) => (

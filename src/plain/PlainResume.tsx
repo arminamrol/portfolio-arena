@@ -2,6 +2,7 @@ import { useLayoutEffect, useRef } from 'react'
 import { resumeData } from '../resume/resumeData'
 import { ABILITY_KEYS, MAX_SKILL_LEVEL, type AbilityKey, type ResumeEntry, type Skill } from '../resume/types'
 import { contactLinkAttributes, contactLinkHint } from '../ui/contactLinks'
+import { ResumeEntryContent } from '../ui/ResumeEntryContent'
 import './PlainResume.css'
 
 type PlainResumeProps = {
@@ -89,7 +90,7 @@ function PlainResumeEntry({ entry }: { entry: ResumeEntry }) {
         {entry.title}
       </h3>
       <p className="plain-resume__entry-subtitle">{entry.subtitle}</p>
-      <p>{entry.body}</p>
+      <ResumeEntryContent entry={entry} />
       {entry.links.length > 0 && (
         <ul className="plain-resume__entry-links">
           {entry.links.map((link) => (
