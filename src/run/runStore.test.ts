@@ -3,7 +3,15 @@ import { mapLayout } from '../map/mapLayout'
 import { resumeData } from '../resume/resumeData'
 import { MAX_LEVEL, XP_PER_CAPTURE } from './level'
 import { FOG_REVEAL_RADIUS, isRevealed } from './fog'
-import { createRunStore, selectLevel, SHOP_RANGE, TOWER_RANGE } from './runStore'
+import {
+  CAPTURES_FOR_VICTORY,
+  createRunStore,
+  NEXUS_RANGE,
+  selectCapturesRemaining,
+  selectLevel,
+  SHOP_RANGE,
+  TOWER_RANGE,
+} from './runStore'
 
 describe('Run store', () => {
   it('starts the Hero at the Base with no move target', () => {
@@ -325,6 +333,131 @@ describe('Run store', () => {
       expect(run.getState().shopOpen).toBe(true)
     })
   })
+
+  describe('Nexus and Victory', () => {
+    const { nexus, base } = mapLayout(resumeData)
+
+    it('needs 3 Captures for Victory', () => {
+      expect(CAPTURES_FOR_VICTORY).toBe(3)
+    })
+
+    it('shows how many Captures remain when the Hero reaches the Nexus with none', () => {
+      const run = createRunStore()
+
+      run.getState().heroMovedTo(nexus)
+
+      expect(run.getState().nexusNotice).toBe('capturesRemaining')
+      expect(selectCapturesRemaining(run.getState())).toBe(3)
+    })
+
+    it('counts the Captures already made', () => {
+      const run = createRunStore()
+      captureTowers(run, 2)
+
+      run.getState().heroMovedTo({ x: nexus.x + NEXUS_RANGE, z: nexus.z })
+
+      expect(run.getState().nexusNotice).toBe('capturesRemaining')
+      expect(selectCapturesRemaining(run.getState())).toBe(1)
+    })
+
+    it('hides the Captures remaining once the Hero leaves the Nexus', () => {
+      const run = createRunStore()
+      run.getState().heroMovedTo(nexus)
+
+      run.getState().heroMovedTo(base)
+
+      expect(run.getState().nexusNotice).toBeNull()
+    })
+
+    it('reaches Victory when the Hero arrives at the Nexus with 3 Captures', () => {
+      const run = createRunStore()
+      captureTowers(run, 3)
+
+      run.getState().heroMovedTo(nexus)
+
+      expect(run.getState().nexusNotice).toBe('victory')
+      expect(run.getState().victoryReached).toBe(true)
+      expect(selectCapturesRemaining(run.getState())).toBe(0)
+    })
+
+    it('reaches Victory with more than 3 Captures too', () => {
+      const run = createRunStore()
+      captureTowers(run, 5)
+
+      run.getState().heroMovedTo(nexus)
+
+      expect(run.getState().nexusNotice).toBe('victory')
+    })
+
+    it('closes the Shop when Victory is shown, so the Victory screen is all that is open', () => {
+      const run = createRunStore()
+      captureTowers(run, 3)
+      run.getState().openShop()
+
+      run.getState().heroMovedTo(nexus)
+
+      expect(run.getState().shopOpen).toBe(false)
+    })
+
+    it('stops a Hero passing through the Nexus when Victory is shown', () => {
+      const run = createRunStore()
+      captureTowers(run, 3)
+      run.getState().setMoveTarget({ x: nexus.x + 10, z: nexus.z })
+
+      run.getState().heroMovedTo(nexus)
+
+      expect(run.getState().nexusNotice).toBe('victory')
+      expect(run.getState().moveTarget).toBeNull()
+    })
+
+    it('keeps the Victory screen up when the Hero walks away, until it is dismissed', () => {
+      const run = createRunStore()
+      captureTowers(run, 3)
+      run.getState().heroMovedTo(nexus)
+
+      run.getState().heroMovedTo(base)
+
+      expect(run.getState().nexusNotice).toBe('victory')
+    })
+
+    it('continues the Run after Victory is dismissed', () => {
+      const run = createRunStore()
+      captureTowers(run, 3)
+      run.getState().heroMovedTo(nexus)
+
+      run.getState().dismissVictoryScreen()
+      expect(run.getState().nexusNotice).toBeNull()
+
+      // The Hero keeps exploring and Capturing.
+      const tower = allTowers()[3]
+      run.getState().heroMovedTo(tower.position)
+      expect(run.getState().captures.size).toBe(4)
+      expect(run.getState().victoryReached).toBe(true)
+    })
+
+    it('does not show Victory again on later arrivals at the Nexus', () => {
+      const run = createRunStore()
+      captureTowers(run, 3)
+      run.getState().heroMovedTo(nexus)
+      run.getState().dismissVictoryScreen()
+
+      run.getState().heroMovedTo(base)
+      run.getState().heroMovedTo(nexus)
+
+      expect(run.getState().nexusNotice).toBeNull()
+    })
+
+    it('does nothing while the Hero stays at the Nexus', () => {
+      const run = createRunStore()
+      captureTowers(run, 3)
+      run.getState().heroMovedTo(nexus)
+      run.getState().dismissVictoryScreen()
+
+      run.getState().heroMovedTo({ x: nexus.x + 0.1, z: nexus.z })
+
+      expect(run.getState().nexusNotice).toBeNull()
+    })
+  })
 })
 
 function allTowers() {
@@ -335,4 +468,10 @@ function towerByEntry(entryId: string) {
   const tower = allTowers().find((t) => t.entryId === entryId)
   if (!tower) throw new Error(`No Tower for ${entryId}`)
   return tower
+}
+
+// Captures the first `count` Towers, then returns the Hero to the Base.
+function captureTowers(run: ReturnType<typeof createRunStore>, count: number) {
+  for (const tower of allTowers().slice(0, count)) run.getState().heroMovedTo(tower.position)
+  run.getState().heroMovedTo(mapLayout(resumeData).base)
 }

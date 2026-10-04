@@ -3,6 +3,7 @@ import { AbilityBar } from './ui/AbilityBar'
 import { Hud } from './ui/Hud'
 import { InfoPanel } from './ui/InfoPanel'
 import { Minimap } from './ui/Minimap'
+import { NexusNotice } from './ui/NexusNotice'
 import { ShopPanel } from './ui/ShopPanel'
 
 export function App() {
@@ -14,6 +15,7 @@ export function App() {
       <ShopPanel />
       <AbilityBar />
       <Minimap />
+      <NexusNotice />
     </>
   )
 }

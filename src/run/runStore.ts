@@ -16,6 +16,16 @@ export const TOWER_RANGE = 2.5
 // enough that the Hero spawning at the Base starts out of range.
 export const SHOP_RANGE = 2.5
 
+// How close the Hero must stand to the Nexus's centre to arrive at it.
+export const NEXUS_RANGE = 2.5
+
+// Captures needed for arriving at the Nexus to be a Victory.
+export const CAPTURES_FOR_VICTORY = 3
+
+// What arriving at the Nexus shows: how many Captures remain, or the Victory
+// screen.
+export type NexusNotice = 'capturesRemaining' | 'victory'
+
 export type RunState = {
   heroPosition: GroundPosition
   moveTarget: GroundPosition | null
@@ -27,6 +37,11 @@ export type RunState = {
   openInfoPanel: string | null
   // Whether the Shop panel is open.
   shopOpen: boolean
+  // What the Nexus is showing, or null.
+  nexusNotice: NexusNotice | null
+  // Whether Victory was reached this Run. The Victory screen shows only
+  // once, so later arrivals at the Nexus show nothing.
+  victoryReached: boolean
   // The latest Ability cast, or null. `id` is new on every cast, so casting
   // the same key twice is still two changes that subscribers see.
   abilityCast: AbilityCast | null
@@ -39,6 +54,7 @@ export type RunState = {
   openShop: () => void
   closeShop: () => void
   toggleShop: () => void
+  dismissVictoryScreen: () => void
   castAbility: (key: AbilityKey) => void
 }
 
@@ -61,6 +77,8 @@ export function createRunStore() {
     xp: 0,
     openInfoPanel: null,
     shopOpen: false,
+    nexusNotice: null,
+    victoryReached: false,
     abilityCast: null,
     // The Hero starts at the Base, so the ground around it starts revealed.
     fog: revealAround(createFog(), layout.base),
@@ -97,6 +115,27 @@ export function createRunStore() {
       const nowAtShop = isAtShop(layout.shop, position)
       if (nowAtShop !== wasAtShop) update.shopOpen = nowAtShop
 
+      // And the Nexus. Arriving shows the Captures remaining, or Victory the
+      // first time there are enough; leaving hides the Captures remaining.
+      // The Victory screen stays until dismissed. It stops the Hero (which
+      // may only be passing through) and closes the panels, so nothing
+      // happens behind it and it is the only thing open.
+      const wasAtNexus = isAtNexus(layout.nexus, state.heroPosition)
+      const nowAtNexus = isAtNexus(layout.nexus, position)
+      if (nowAtNexus && !wasAtNexus) {
+        if (state.captures.size < CAPTURES_FOR_VICTORY) {
+          update.nexusNotice = 'capturesRemaining'
+        } else if (!state.victoryReached) {
+          update.nexusNotice = 'victory'
+          update.victoryReached = true
+          update.moveTarget = null
+          update.shopOpen = false
+          update.openInfoPanel = null
+        }
+      } else if (!nowAtNexus && wasAtNexus && state.nexusNotice === 'capturesRemaining') {
+        update.nexusNotice = null
+      }
+
       set(update)
     },
 
@@ -107,6 +146,8 @@ export function createRunStore() {
     closeShop: () => set({ shopOpen: false }),
 
     toggleShop: () => set((state) => ({ shopOpen: !state.shopOpen })),
+
+    dismissVictoryScreen: () => set((state) => (state.nexusNotice === 'victory' ? { nexusNotice: null } : {})),
 
     setMoveTarget: (position) => set({ moveTarget: position }),
 
@@ -121,6 +162,11 @@ export function selectLevel(state: RunState) {
   return levelForXp(state.xp)
 }
 
+// Captures still needed for Victory; 0 once there are enough.
+export function selectCapturesRemaining(state: RunState) {
+  return Math.max(0, CAPTURES_FOR_VICTORY - state.captures.size)
+}
+
 // Proximity is a plain distance check against each Tower's centre: no
 // physics engine, no colliders. Ranges never overlap, so at most one Tower
 // is in range.
@@ -130,6 +176,10 @@ function towerInRange(towers: TowerLayout[], position: GroundPosition) {
 
 function isAtShop(shop: GroundPosition, position: GroundPosition) {
   return isWithin(shop, position, SHOP_RANGE)
+}
+
+function isAtNexus(nexus: GroundPosition, position: GroundPosition) {
+  return isWithin(nexus, position, NEXUS_RANGE)
 }
 
 function isWithin(a: GroundPosition, b: GroundPosition, range: number) {
