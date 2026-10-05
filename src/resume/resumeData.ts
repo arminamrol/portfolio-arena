@@ -177,7 +177,7 @@ export const resumeData = {
     { label: 'Email', url: 'mailto:arminamrol@gmail.com' },
     {
       label: 'Resume PDF',
-      url: 'https://github.com/arminamrol/portfolio-arena/releases/latest/download/Armin-Amrollahian.pdf',
+      url: 'https://github.com/arminamrol/portfolio-arena/releases/latest/download/Armin-Amrollahian-Resume.pdf',
     },
   ],
 } satisfies ResumeData
