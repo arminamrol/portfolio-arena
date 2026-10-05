@@ -1,8 +1,18 @@
 # Portfolio Arena
 
-A personal resume website presented as a small isometric arena game. The visitor steers a Hero around a map and discovers the owner's resume by capturing Towers.
+A personal resume website presented as a small isometric arena game. The Visitor steers a Hero around a map and discovers the Owner's resume by capturing Towers.
 
 ## Language
+
+### People
+
+**Owner**:
+The person whose resume the site presents. Whoever forks the project and replaces the Resume Data becomes the Owner of their copy.
+_Avoid_: user, author, me
+
+**Visitor**:
+The person who opens the site and controls the Hero.
+_Avoid_: user, player
 
 ### Resume content
 
@@ -27,7 +37,7 @@ One of four headline competencies with a proficiency level from 1 to 5. Shown by
 _Avoid_: tech, tool
 
 **Inventory**:
-The owner's full set of Tools, grouped by area (e.g. Frontend, Backend & Data, DevOps & Tooling). Opened from a button beside the Ability bar; also listed in the Plain Resume.
+The Owner's full set of Tools, grouped by area (e.g. Frontend, Backend & Data, DevOps & Tooling). Opened from a button beside the Ability bar; also listed in the Plain Resume.
 _Avoid_: tech stack, toolbox, skills list
 
 **Tool**:
@@ -35,13 +45,13 @@ One technology in the Inventory, with no proficiency level. A Skill can share it
 _Avoid_: skill, item
 
 **Contact Link**:
-One way to reach or learn about the owner (GitHub, LinkedIn, email, resume PDF). Shown as a Shop Item.
+One way to reach or learn about the Owner (GitHub, LinkedIn, email, resume PDF). Shown as a Shop Item.
 _Avoid_: social, link
 
 ### The world
 
 **Hero**:
-The single character the visitor controls.
+The single character the Visitor controls.
 _Avoid_: player, avatar, character
 
 **Base**:
