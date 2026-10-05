@@ -11,12 +11,28 @@ The single source file holding all resume content; every in-world thing that sho
 _Avoid_: config, content file, JSON
 
 **Resume Entry**:
-One degree, job, or project in the Resume Data. Shown by exactly one Tower.
+One degree, job, or project in the Resume Data. Shown by exactly one Tower. Its content is a short description plus a list of Highlights.
 _Avoid_: item, card, record
+
+**Entry Kind**:
+What a Resume Entry is: experience, project or education. Independent of the Lane that holds it; the Plain Resume groups by Entry Kind (Experience, then Projects, then Education), so it reads like a standard resume.
+_Avoid_: type, category
+
+**Highlight**:
+One bullet-point achievement inside a Resume Entry, ideally with a measurable result.
+_Avoid_: bullet, point, detail
 
 **Skill**:
 One of four headline competencies with a proficiency level from 1 to 5. Shown by exactly one Ability.
 _Avoid_: tech, tool
+
+**Inventory**:
+The owner's full set of Tools, grouped by area (e.g. Frontend, Backend & Data, DevOps & Tooling). Opened from a button beside the Ability bar; also listed in the Plain Resume.
+_Avoid_: tech stack, toolbox, skills list
+
+**Tool**:
+One technology in the Inventory, with no proficiency level. A Skill can share its name with a Tool; the Skill is the headline, the Tool is the catalogue entry.
+_Avoid_: skill, item
 
 **Contact Link**:
 One way to reach or learn about the owner (GitHub, LinkedIn, email, resume PDF). Shown as a Shop Item.
@@ -33,7 +49,7 @@ The starting area where the Hero spawns and the Shop stands.
 _Avoid_: spawn, fountain
 
 **Lane**:
-A path from the Base to the Nexus that groups the Towers of one category (Education, Projects, Experience). Holds 2–3 Towers.
+A path from the Base to the Nexus that groups related Towers under one label (Beginnings, Projects, Experience). A Lane may mix Entry Kinds. Holds 1–4 Towers.
 _Avoid_: road, track, section
 
 **Tower**:
@@ -85,5 +101,5 @@ The side panel showing one Resume Entry's full content.
 _Avoid_: modal, popup, card
 
 **Plain Resume**:
-The scrollable, non-game HTML view of the whole Resume Data. Works without WebGL and is the fallback when the game cannot run.
+The scrollable, non-game HTML view of the whole Resume Data, with Resume Entries grouped by Entry Kind. Works without WebGL and is the fallback when the game cannot run.
 _Avoid_: skip view, text mode, fallback page

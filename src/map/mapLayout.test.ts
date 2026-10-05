@@ -9,7 +9,7 @@ describe('mapLayout', () => {
   it('lays out one labelled Lane per category, each running from the Base to the Nexus', () => {
     const layout = mapLayout(resumeData)
 
-    expect(layout.lanes.map((lane) => lane.label)).toEqual(['Education', 'Projects', 'Experience'])
+    expect(layout.lanes.map((lane) => lane.label)).toEqual(['Beginnings', 'Projects', 'Experience'])
     for (const lane of layout.lanes) {
       expect(lane.path[0]).toEqual(layout.base)
       expect(lane.path.at(-1)).toEqual(layout.nexus)
@@ -33,7 +33,7 @@ describe('mapLayout', () => {
     // Top runs (24, 24) → (-24, 24) → (-24, -24): 96 units. Two Towers split
     // it into three gaps of 32. The second Tower, 64 along, is 16 past the
     // corner.
-    const top = laneByLabel(mapLayout(withLaneSizes({ top: 2, mid: 3, bottom: 2 })), 'Education')
+    const top = laneByLabel(mapLayout(withLaneSizes({ top: 2, mid: 3, bottom: 2 })), 'Beginnings')
 
     expectPositions(top.towers, [
       { x: -8, z: 24 },
@@ -43,7 +43,7 @@ describe('mapLayout', () => {
 
   it('re-spaces a Lane when a Resume Entry is added to it', () => {
     // Three Towers split the 96-unit top Lane into four gaps of 24.
-    const top = laneByLabel(mapLayout(withLaneSizes({ top: 3, mid: 3, bottom: 2 })), 'Education')
+    const top = laneByLabel(mapLayout(withLaneSizes({ top: 3, mid: 3, bottom: 2 })), 'Beginnings')
 
     expect(top.towers.map((tower) => tower.entryId)).toEqual(['top-0', 'top-1', 'top-2'])
     expectPositions(top.towers, [
@@ -55,7 +55,7 @@ describe('mapLayout', () => {
 
   it('places a lone Tower halfway along its Lane', () => {
     // Half of the 96-unit top Lane is 48 units: exactly the corner.
-    const top = laneByLabel(mapLayout(withLaneSizes({ top: 1, mid: 3, bottom: 4 })), 'Education')
+    const top = laneByLabel(mapLayout(withLaneSizes({ top: 1, mid: 3, bottom: 4 })), 'Beginnings')
 
     expectPositions(top.towers, [{ x: -24, z: 24 }])
   })

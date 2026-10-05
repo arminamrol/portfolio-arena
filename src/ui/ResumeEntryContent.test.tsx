@@ -5,6 +5,7 @@ import { ResumeEntryContent } from './ResumeEntryContent'
 
 const entry: ResumeEntry = {
   id: 'e',
+  kind: 'project',
   title: 'Title',
   subtitle: 'Subtitle',
   description: 'Built the checkout.',

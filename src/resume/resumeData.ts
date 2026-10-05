@@ -5,20 +5,42 @@ import type { ResumeData } from './types'
 export const resumeData = {
   hero: {
     name: 'Armin Amrollahian',
-    title: 'Senior Frontend Engineer',
+    title: 'Senior Software Engineer',
     summary:
-      'Senior frontend engineer shipping for the web since 2016. At Digikala I build for one of Iran’s largest e-commerce platforms, serving over 40 million customers. My reach goes past the frontend into Nest.js, Docker and Postgres. Based in Tehran; I work in English and Persian.',
+      'Hi, I’m Armin Amrollahian, a full-stack engineer who started freelancing in 2016 and has since worked with teams of all sizes, from early-stage startups to large companies. I enjoy turning messy problems into simple, maintainable solutions, and I care as much about code quality and team communication as I do about shipping fast. Take a look at my work below, or get in touch if you’d like to work together.',
   },
 
   lanes: {
+    // Where it started, oldest first: school, then the first jobs.
     top: {
-      label: 'Education',
+      label: 'Beginnings',
       entries: [
         {
           id: 'mazust',
+          kind: 'education',
           title: 'Mazust',
           subtitle: 'Software engineering courses',
           description: 'Completed software engineering courses at the University of Science and Technology of Mazandaran.',
+          highlights: [],
+          links: [],
+        },
+        {
+          id: 'freelance',
+          kind: 'experience',
+          started: '2016',
+          title: 'Freelance Software Engineer',
+          subtitle: 'Self-employed · 2016–2023',
+          description: 'Built web and mobile apps for clients as an independent engineer.',
+          highlights: [],
+          links: [],
+        },
+        {
+          id: 'roomak',
+          kind: 'experience',
+          started: '2019-03',
+          title: 'Frontend Developer',
+          subtitle: 'Roomak · Mar 2019–Apr 2020',
+          description: 'Roomak is a software company building custom solutions tailored to client companies across many industries.',
           highlights: [],
           links: [],
         },
@@ -30,6 +52,7 @@ export const resumeData = {
       entries: [
         {
           id: 'online-marketplace',
+          kind: 'project',
           title: 'Online Marketplace',
           subtitle: 'Next.js · Nest.js · Docker · Postgres',
           description: 'An online marketplace where users buy, sell and trade goods and services.',
@@ -40,7 +63,17 @@ export const resumeData = {
           links: [],
         },
         {
+          id: 'ecommerce-webapp',
+          kind: 'project',
+          title: 'eCommerce Webapp',
+          subtitle: 'Next.js · Nest.js · MongoDB · Docker',
+          description: 'An online store built in Next.js on a Nest.js and MongoDB backend, deployed with Docker behind Nginx.',
+          highlights: [],
+          links: [],
+        },
+        {
           id: 'rah-ahan-mobile-app',
+          kind: 'project',
           title: 'Rah Ahan Mobile App',
           subtitle: 'React Native · Jest',
           description: 'A mobile app for Rah Ahan, Iran’s national railway, built in React Native for iOS and Android.',
@@ -49,6 +82,7 @@ export const resumeData = {
         },
         {
           id: 'restaurant-app',
+          kind: 'project',
           title: 'Restaurant App',
           subtitle: 'React Native · React · Redux',
           description: 'A restaurant app for iOS and Android built in React Native, with a companion React web app.',
@@ -58,11 +92,14 @@ export const resumeData = {
       ],
     },
 
+    // Newest first.
     bottom: {
       label: 'Experience',
       entries: [
         {
           id: 'digikala',
+          kind: 'experience',
+          started: '2024-06',
           title: 'Senior Software Engineer, Frontend',
           subtitle: 'Digikala · Tehran · Jun 2024–present',
           description: 'Digikala is Iran’s leading e-commerce platform, serving over 40 million customers.',
@@ -77,6 +114,8 @@ export const resumeData = {
         },
         {
           id: 'nexu',
+          kind: 'experience',
+          started: '2023-07',
           title: 'Senior Frontend Developer',
           subtitle: 'Nexu (MH Holding) · Remote, Spain · Jul 2023–Jul 2024',
           description: 'Nexu is a health app offering online video calls and chats with doctors.',
@@ -86,22 +125,6 @@ export const resumeData = {
             'Boosted customer engagement by 30% through better SEO and site performance',
             'Mentored the other frontend developers, helping them grow their skills and productivity',
           ],
-          links: [],
-        },
-        {
-          id: 'freelance',
-          title: 'Freelance Software Engineer',
-          subtitle: 'Self-employed · 2016–2019, 2021–2023',
-          description: 'Built web and mobile apps for clients as an independent engineer.',
-          highlights: [],
-          links: [],
-        },
-        {
-          id: 'roomak',
-          title: 'Frontend Developer',
-          subtitle: 'Roomak · Mar 2019–Apr 2020',
-          description: 'Roomak is a software company building custom solutions tailored to client companies across many industries.',
-          highlights: [],
           links: [],
         },
       ],
@@ -145,6 +168,8 @@ export const resumeData = {
       tools: ['Docker', 'Nginx', 'Grafana', 'Jest', 'Webpack', 'Vite', 'Clean Architecture'],
     },
   ],
+
+  languages: ['English', 'Persian'],
 
   contactLinks: [
     { label: 'GitHub', url: 'https://github.com/arminamrol/' },

@@ -13,7 +13,7 @@ describe('InfoPanel', () => {
   it('shows the Resume Entry of the Tower the Hero is at, with its Highlights', () => {
     const tower = mapLayout(resumeData).lanes[0].towers[0]
     const entry = Object.values(resumeData.lanes)
-      .flatMap((lane) => lane.entries)
+      .flatMap((lane) => [...lane.entries])
       .find((e) => e.id === tower.entryId)!
     render(<InfoPanel />)
 

@@ -7,6 +7,10 @@ export type Link = {
   url: string
 }
 
+// What a Resume Entry is, whichever Lane holds it. The Plain Resume groups
+// by this, so it reads like a standard resume even where a Lane mixes kinds.
+export type EntryKind = 'experience' | 'project' | 'education'
+
 // One degree, job, or project. Shown by exactly one Tower.
 export type ResumeEntry = {
   id: string
@@ -18,7 +22,15 @@ export type ResumeEntry = {
   // bulleted list after the description; may be empty.
   highlights: string[]
   links: Link[]
-}
+} & (
+  | {
+      kind: 'experience'
+      // When the job started, as YYYY or YYYY-MM. Orders Experience newest
+      // first in the Plain Resume.
+      started: string
+    }
+  | { kind: 'project' | 'education' }
+)
 
 // A Lane holds 1–4 Towers, so it holds a 1- to 4-element tuple of entries.
 export type LaneEntries =
@@ -72,5 +84,7 @@ export type ResumeData = {
   // The owner's full set of Tools, grouped by area, in display order. Shown
   // in the Inventory panel and the Plain Resume.
   inventory: ToolGroup[]
+  // Spoken languages, listed in the Plain Resume.
+  languages: string[]
   contactLinks: ContactLink[]
 }

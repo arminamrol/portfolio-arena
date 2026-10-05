@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { resumeData } from '../resume/resumeData'
 import { ABILITY_KEYS, MAX_SKILL_LEVEL } from '../resume/types'
 import { PlainResume } from './PlainResume'
+import { plainResumeSections } from './plainResumeSections'
 
 // The Plain Resume must never load the 3D code path. If anything it imports
 // reaches three or React Three Fiber, importing it fails these mocks.
@@ -13,7 +14,7 @@ vi.mock('@react-three/fiber', () => {
   throw new Error('The Plain Resume loaded @react-three/fiber')
 })
 
-const lanes = Object.values(resumeData.lanes)
+const sections = plainResumeSections(resumeData)
 
 describe('PlainResume', () => {
   afterEach(cleanup)
@@ -27,12 +28,16 @@ describe('PlainResume', () => {
     expect(within(header).getByText(resumeData.hero.summary)).toBeTruthy()
   })
 
-  it('shows every Resume Entry under its Lane, with its Highlights and links', () => {
+  it('shows every Resume Entry under its kind, with its Highlights and links', () => {
     render(<PlainResume />)
 
-    for (const lane of lanes) {
-      const section = screen.getByRole('region', { name: lane.label })
-      for (const entry of lane.entries) {
+    for (const { title, entries } of sections) {
+      const section = screen.getByRole('region', { name: title })
+      const articles = within(section).getAllByRole('article')
+      expect(articles.map((article) => article.getAttribute('aria-labelledby'))).toEqual(
+        entries.map((entry) => `plain-resume-entry-${entry.id}`),
+      )
+      for (const entry of entries) {
         const article = within(section).getByRole('article', { name: entry.title })
         expect(within(article).getByText(entry.subtitle)).toBeTruthy()
         expect(within(article).getByText(entry.description)).toBeTruthy()
@@ -44,6 +49,27 @@ describe('PlainResume', () => {
         }
       }
     }
+  })
+
+  it('shows Experience, then Projects, then Education, before the Skills', () => {
+    render(<PlainResume />)
+
+    expect(screen.getAllByRole('heading', { level: 2 }).map((heading) => heading.textContent)).toEqual([
+      'Experience',
+      'Projects',
+      'Education',
+      'Skills',
+      'Inventory',
+      'Languages',
+      'Contact',
+    ])
+  })
+
+  it('lists the spoken languages', () => {
+    render(<PlainResume />)
+
+    const section = screen.getByRole('region', { name: 'Languages' })
+    expect(within(section).getAllByRole('listitem').map((item) => item.textContent)).toEqual(resumeData.languages)
   })
 
   it('shows every Skill with its level', () => {

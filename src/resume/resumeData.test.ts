@@ -4,6 +4,7 @@ import type { Lane, ResumeData, ResumeEntry, Skill, ToolGroup } from './types'
 
 const entry: ResumeEntry = {
   id: 'e',
+  kind: 'project',
   title: 'Title',
   subtitle: 'Subtitle',
   description: 'Description',

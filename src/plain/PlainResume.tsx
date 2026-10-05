@@ -4,6 +4,7 @@ import { ABILITY_KEYS, MAX_SKILL_LEVEL, type AbilityKey, type ResumeEntry, type 
 import { contactLinkAttributes, contactLinkHint } from '../ui/contactLinks'
 import { ResumeEntryContent } from '../ui/ResumeEntryContent'
 import './PlainResume.css'
+import { plainResumeSections } from './plainResumeSections'
 
 type PlainResumeProps = {
   // Switches to the game. Left out when the game cannot run (no WebGL), so
@@ -40,12 +41,12 @@ export function PlainResume({ onPlay, takeFocus = false }: PlainResumeProps) {
           )}
         </header>
 
-        {Object.entries(resumeData.lanes).map(([laneKey, lane]) => (
-          <section key={laneKey} className="plain-resume__section" aria-labelledby={`plain-resume-${laneKey}`}>
-            <h2 id={`plain-resume-${laneKey}`} className="plain-resume__section-title">
-              {lane.label}
+        {plainResumeSections(resumeData).map(({ kind, title, entries }) => (
+          <section key={kind} className="plain-resume__section" aria-labelledby={`plain-resume-${kind}`}>
+            <h2 id={`plain-resume-${kind}`} className="plain-resume__section-title">
+              {title}
             </h2>
-            {lane.entries.map((entry) => (
+            {entries.map((entry) => (
               <PlainResumeEntry key={entry.id} entry={entry} />
             ))}
           </section>
@@ -83,6 +84,17 @@ export function PlainResume({ onPlay, takeFocus = false }: PlainResumeProps) {
               )
             })}
           </div>
+        </section>
+
+        <section className="plain-resume__section" aria-labelledby="plain-resume-languages">
+          <h2 id="plain-resume-languages" className="plain-resume__section-title">
+            Languages
+          </h2>
+          <ul className="plain-resume__tools" aria-labelledby="plain-resume-languages">
+            {resumeData.languages.map((language) => (
+              <li key={language}>{language}</li>
+            ))}
+          </ul>
         </section>
 
         <section className="plain-resume__section" aria-labelledby="plain-resume-contact">

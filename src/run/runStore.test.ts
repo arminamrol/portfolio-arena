@@ -130,7 +130,7 @@ describe('Run store', () => {
 
     it('walking to each Tower\'s position Captures that Tower and only that one', () => {
       const towers = allTowers()
-      expect(towers).toHaveLength(Object.values(resumeData.lanes).flatMap((lane) => lane.entries).length)
+      expect(towers).toHaveLength(Object.values(resumeData.lanes).flatMap((lane) => [...lane.entries]).length)
 
       for (const tower of towers) {
         const run = createRunStore()
